@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+/* Class-based dark mode (Tailwind v4) — toggled via .dark on <html>,
+   driven by ThemeContext. Default theme is dark; see ThemeContext.jsx. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Core palette — signal red / ink black / paper white */
+  --color-signal-50: #fdf1f1;
+  --color-signal-100: #fbdede;
+  --color-signal-200: #f6c0c0;
+  --color-signal-300: #ee9797;
+  --color-signal-400: #e2686a;
+  --color-signal-500: #d1282e;
+  --color-signal-600: #b21c22;
+  --color-signal-700: #93171d;
+  --color-signal-800: #74151a;
+  --color-signal-900: #521215;
+
+  --color-ink-950: #0a0a0a;
+  --color-ink-900: #141414;
+  --color-ink-800: #1f1f1f;
+  --color-ink-700: #2b2b2b;
+  --color-ink-600: #3d3d3d;
+  --color-ink-500: #5c5c5c;
+  --color-ink-400: #8a8a8a;
+  --color-ink-300: #b3b3b3;
+  --color-ink-200: #d6d6d6;
+  --color-ink-100: #e8e8e8;
+  --color-ink-50: #f4f4f4;
+
+  --color-paper: #fafaf9;
+
+  --font-display:
+    "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --shadow-panel:
+    0 1px 2px rgba(10, 10, 10, 0.04), 0 8px 24px rgba(10, 10, 10, 0.06);
+}
+
+@layer base {
+  * {
+    @apply border-ink-100;
+  }
+
+  html {
+    font-feature-settings:
+      "tnum" 1,
+      "cv02" 1;
+  }
+
+  body {
+    @apply bg-paper text-ink-900 font-sans antialiased transition-colors duration-150;
+  }
+
+  .dark body {
+    @apply bg-ink-950 text-ink-50;
+  }
+
+  ::selection {
+    @apply bg-signal-200 text-ink-950;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-signal-500);
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-ink-200);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-ink-300);
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    background: var(--color-ink-700);
+  }
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-ink-600);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
