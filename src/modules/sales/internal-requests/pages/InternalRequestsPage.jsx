@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { useInternalRequests } from "../hooks/useInternalRequests";
-import { Checkbox } from "../../../../shared/components/forms/Checkbox";
+import { Button } from "../../../../shared/components/ui/Button";
+import { TaskFilterDrawer } from "../../../../shared/components/ui/TaskFilterDrawer";
 import { EmptyState } from "../../../../shared/components/feedback/EmptyState";
 import { formatDateTime, initials } from "../../../../shared/utils";
 import { INTERNAL_REQUEST_FILTER_TASKS } from "../constants/requestStatus";
@@ -25,7 +26,7 @@ export default function InternalRequestsPage() {
   const [query, setQuery] = useState("");
   const [tasks, setTasks] = useState(["open"]);
 
-  const toggleTask = (key) => setTasks((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const filtered = useMemo(() => {
     let list = requests;
@@ -45,18 +46,9 @@ export default function InternalRequestsPage() {
   }, [requests, tasks, query]);
 
   return (
-    <div className="flex items-start gap-4">
-      <div className="w-64 shrink-0 rounded-xl bg-white p-4 ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
-        <p className="mb-3 text-xs font-semibold tracking-wide text-ink-400">Filter by task</p>
-        <div className="space-y-2.5">
-          {INTERNAL_REQUEST_FILTER_TASKS.map((task) => (
-            <Checkbox key={task.key} label={task.label} checked={tasks.includes(task.key)} onChange={() => toggleTask(task.key)} />
-          ))}
-        </div>
-      </div>
-
-      <div className="flex-1 space-y-4">
-        <div className="relative">
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-300" />
           <input
             value={query}
@@ -65,7 +57,16 @@ export default function InternalRequestsPage() {
             className="h-9 w-full rounded-lg bg-white pl-9 pr-3 text-sm text-ink-900 placeholder:text-ink-400 ring-1 ring-inset ring-ink-100 focus:ring-2 focus:ring-signal-500 dark:bg-ink-800 dark:text-ink-50 dark:ring-ink-700 dark:placeholder:text-ink-500"
           />
         </div>
+        <Button variant="secondary" onClick={() => setFiltersOpen(true)}>
+          <SlidersHorizontal className="h-4 w-4" />
+          Filter by task
+          {!tasks.includes("viewAll") && tasks.length > 0 && (
+            <span className="ml-0.5 rounded-full bg-ink-900/10 px-1.5 text-xs dark:bg-white/15">{tasks.length}</span>
+          )}
+        </Button>
+      </div>
 
+      <div className="space-y-4">
         {filtered.length === 0 ? (
           <EmptyState
             title="No internal requests yet"
@@ -116,6 +117,17 @@ export default function InternalRequestsPage() {
           </div>
         )}
       </div>
+
+      <TaskFilterDrawer
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        tasks={INTERNAL_REQUEST_FILTER_TASKS}
+        activeTasks={tasks}
+        onApply={(next) => {
+          setTasks(next);
+          setFiltersOpen(false);
+        }}
+      />
     </div>
   );
 }

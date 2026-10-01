@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, Pencil, Trash2, FileText, Download, Send } from "lucide-react";
+import { ChevronLeft, Pencil, FileText, Download, Send } from "lucide-react";
 import { Button } from "../../../shared/components/ui/Button";
 import { Select } from "../../../shared/components/forms";
 import { StatusBadge, ProjectStatusPill } from "../components/StatusBadge";
-import { ConfirmDialog } from "../../../shared/components/feedback/ConfirmDialog";
 import { SiteVisitModal } from "../components/SiteVisitModal";
 import { OutsourceRequestModal } from "../components/OutsourceRequestModal";
 import { CloseEnquiryModal } from "../components/CloseEnquiryModal";
@@ -36,7 +35,7 @@ function Field({ label, value }) {
 export default function EnquiryDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { deleteEnquiry, setSiteVisit, closeEnquiryLocally } = useEnquiries();
+  const { setSiteVisit, closeEnquiryLocally } = useEnquiries();
   const { createRequest } = useInternalRequests();
 
   const [enquiry, setEnquiry] = useState(null);
@@ -44,7 +43,6 @@ export default function EnquiryDetailsPage() {
   const [loadError, setLoadError] = useState(null);
   const [action, setAction] = useState("");
   const [pendingAction, setPendingAction] = useState("");
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -77,9 +75,13 @@ export default function EnquiryDetailsPage() {
   if (!enquiry) return <div className="p-8 text-sm text-ink-400">Enquiry not found.</div>;
 
   const runAction = () => {
-    if (pendingAction === "CREATE_QUOTATION" || pendingAction === "SEND_ESTIMATION") {
-      // No sales-quotation/estimation module or API documented yet.
-      alert("This opens the Sales Quotation module once that screen and API are available.");
+    if (pendingAction === "CREATE_QUOTATION") {
+      navigate(`/enquiries/${id}/quotation`);
+      return;
+    }
+    if (pendingAction === "SEND_ESTIMATION") {
+      // No estimation module or API documented yet.
+      alert("Estimation isn't built yet — it will open here once that screen and API are available.");
       setPendingAction("");
       return;
     }
@@ -125,7 +127,7 @@ export default function EnquiryDetailsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 pb-16">
+    <div className="space-y-6 pb-16">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <Link to="/enquiries" className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-50 hover:text-ink-900 dark:hover:bg-ink-800 dark:hover:text-white">
@@ -147,28 +149,35 @@ export default function EnquiryDetailsPage() {
             <Pencil className="h-4 w-4" />
             Edit
           </Button>
-          <Button variant="danger" size="sm" onClick={() => setConfirmingDelete(true)}>
-            <Trash2 className="h-4 w-4" />
-            Delete
-          </Button>
         </div>
       </div>
 
-      <section className="grid grid-cols-1 gap-4 rounded-xl bg-white p-5 ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800 sm:grid-cols-3">
-        <Field label="Created at" value={formatDateTime(enquiry.createdAt)} />
-        <Field label="Enquiry lead" value={enquiry.projectLead} />
-        <Field label="Enquiry date" value={formatDate(enquiry.dateOfEnquiry)} />
-        <Field label="Submission deadline" value={enquiry.submissionDeadline ? formatDate(enquiry.submissionDeadline) : "—"} />
-        <Field label="Contact person" value={enquiry.contactPerson} />
-        <Field label="Contact number" value={enquiry.contactNumber} />
-        <Field label="Customer email" value={enquiry.customerEmail} />
-        <div>
-          <p className="text-xs text-ink-400">Project status</p>
-          <div className="mt-1">
-            <ProjectStatusPill status={enquiry.projectStatus} />
+      <section className="rounded-xl bg-white p-5 ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
+        <p className="mb-3 text-xs font-semibold tracking-wide text-ink-400">Customer / Client details</p>
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%_-_3rem)/4)),1fr))] gap-4">
+          <Field label="Company name" value={enquiry.companyName} />
+          <Field label="Customer / Client name" value={enquiry.customerName} />
+          <Field label="Contact person" value={enquiry.contactPerson} />
+          <Field label="Contact number" value={enquiry.contactNumber} />
+          <Field label="Customer / Client email" value={enquiry.customerEmail} />
+        </div>
+      </section>
+
+      <section className="rounded-xl bg-white p-5 ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
+        <p className="mb-3 text-xs font-semibold tracking-wide text-ink-400">Enquiry details</p>
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%_-_3rem)/4)),1fr))] gap-4">
+          <Field label="Created at" value={formatDateTime(enquiry.createdAt)} />
+          <Field label="Enquiry date" value={formatDate(enquiry.dateOfEnquiry)} />
+          <Field label="Enquiry lead" value={enquiry.projectLead === "NO_LEAD" ? "No lead" : enquiry.projectLead} />
+          <Field label="Submission deadline" value={enquiry.submissionDeadline ? formatDate(enquiry.submissionDeadline) : "—"} />
+          <Field label="Project reference" value={enquiry.projectReference} />
+          <div>
+            <p className="text-xs text-ink-400">Project status</p>
+            <div className="mt-1">
+              <ProjectStatusPill status={enquiry.projectStatus} />
+            </div>
           </div>
         </div>
-        <Field label="Project reference" value={enquiry.projectReference} />
       </section>
 
       {(enquiry.projectInformations || []).map((project, i) => (
@@ -176,8 +185,8 @@ export default function EnquiryDetailsPage() {
           <p className="mb-3 text-xs font-semibold tracking-wide text-ink-400">
             Project information {(enquiry.projectInformations || []).length > 1 ? `#${i + 1}` : ""}
           </p>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Field label="Project name" value={project.projectName} />
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%_-_3rem)/4)),1fr))] gap-4">
+            <div className="sm:col-span-2"><Field label="Project name" value={project.projectName} /></div>
             <Field label="Country" value={project.country} />
             <Field label="Emirate" value={project.emirate} />
           </div>
@@ -233,7 +242,7 @@ export default function EnquiryDetailsPage() {
       <section className="rounded-xl bg-white p-5 ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
         <p className="mb-3 text-xs font-semibold tracking-wide text-ink-400">Site visit information</p>
         {enquiry.siteVisit?.siteVisitRequired ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%_-_3rem)/4)),1fr))] gap-4">
             <Field label="Assigned to" value={enquiry.siteVisit.siteVisitAssignedTo} />
             <Field label="Visit date" value={enquiry.siteVisit.siteVisitDate ? formatDateTime(enquiry.siteVisit.siteVisitDate) : "—"} />
             <Field label="Gate pass" value={enquiry.siteVisit.gatePassRequired ? "Required" : "Not required"} />
@@ -297,18 +306,6 @@ export default function EnquiryDetailsPage() {
           setPendingAction("");
         }}
         onSubmit={handleClose}
-      />
-
-      <ConfirmDialog
-        open={confirmingDelete}
-        title="Delete this enquiry?"
-        description={`${enquiry.enquiryNo} · ${enquiry.customerName} will be permanently removed.`}
-        confirmLabel="Delete"
-        onCancel={() => setConfirmingDelete(false)}
-        onConfirm={async () => {
-          await deleteEnquiry(enquiry.id);
-          navigate("/enquiries");
-        }}
       />
     </div>
   );

@@ -1,10 +1,13 @@
 import { Trash2 } from "lucide-react";
-import { FieldLabel, Input, Select, FormRow } from "../../../shared/components/forms";
+import { FieldLabel, Input, Select, FormRow, FieldError } from "../../../shared/components/forms";
 import { ScopeOfServicesTable } from "./ScopeOfServicesTable";
 import { COUNTRIES, EMIRATES } from "../constants/enquiryStatus";
+import { isUae } from "../schemas/enquiry.schema";
 
-export function ProjectInformationBlock({ index, project, activities, onChange, onRemove, removable }) {
+export function ProjectInformationBlock({ index, project, activities, onChange, onRemove, removable, errors = {} }) {
   const set = (patch) => onChange({ ...project, ...patch });
+  const k = `projects.${index}`;
+  const countries = COUNTRIES.includes(project.country) || !project.country ? COUNTRIES : [project.country, ...COUNTRIES];
 
   return (
     <div className="rounded-xl bg-ink-50 p-4 dark:bg-ink-800">
@@ -18,38 +21,46 @@ export function ProjectInformationBlock({ index, project, activities, onChange, 
         )}
       </div>
 
-      <FormRow cols={1}>
-        <div>
+      <FormRow>
+        <div className="sm:col-span-2">
           <FieldLabel required>Project name</FieldLabel>
-          <Input required value={project.projectName} onChange={(e) => set({ projectName: e.target.value })} placeholder="Proposed G+1 Villa at Dubai" />
+          <Input
+            value={project.projectName}
+            aria-invalid={Boolean(errors[`${k}.projectName`])}
+            onChange={(e) => set({ projectName: e.target.value })}
+            placeholder="Proposed G+1 Villa at Dubai"
+          />
+          <FieldError>{errors[`${k}.projectName`]}</FieldError>
+        </div>
+        <div>
+          <FieldLabel required>Country</FieldLabel>
+          <Select
+            value={project.country}
+            aria-invalid={Boolean(errors[`${k}.country`])}
+            onChange={(e) => set({ country: e.target.value, emirate: isUae(e.target.value) ? project.emirate : "" })}
+          >
+            {countries.map((c) => (
+              <option key={c}>{c}</option>
+            ))}
+          </Select>
+          <FieldError>{errors[`${k}.country`]}</FieldError>
+        </div>
+        <div>
+          <FieldLabel required={isUae(project.country)}>Emirate</FieldLabel>
+          <Select
+            value={project.emirate}
+            aria-invalid={Boolean(errors[`${k}.emirate`])}
+            onChange={(e) => set({ emirate: e.target.value })}
+            disabled={!isUae(project.country)}
+          >
+            <option value="">Select emirate…</option>
+            {EMIRATES.map((e) => (
+              <option key={e}>{e}</option>
+            ))}
+          </Select>
+          <FieldError>{errors[`${k}.emirate`]}</FieldError>
         </div>
       </FormRow>
-
-      <div className="mt-4">
-        <FormRow>
-          <div>
-            <FieldLabel>Country</FieldLabel>
-            <Select value={project.country} onChange={(e) => set({ country: e.target.value, emirate: "" })}>
-              {COUNTRIES.map((c) => (
-                <option key={c}>{c}</option>
-              ))}
-            </Select>
-          </div>
-          <div>
-            <FieldLabel>Emirate</FieldLabel>
-            <Select
-              value={project.emirate}
-              onChange={(e) => set({ emirate: e.target.value })}
-              disabled={project.country !== "United Arab Emirates"}
-            >
-              <option value="">Select emirate…</option>
-              {EMIRATES.map((e) => (
-                <option key={e}>{e}</option>
-              ))}
-            </Select>
-          </div>
-        </FormRow>
-      </div>
 
       <div className="mt-4">
         <p className="mb-1.5 text-sm font-medium text-ink-700 dark:text-ink-300">Scope of services</p>
@@ -57,6 +68,8 @@ export function ProjectInformationBlock({ index, project, activities, onChange, 
           scopes={project.scopeOfServices}
           activities={activities}
           onChange={(scopeOfServices) => set({ scopeOfServices })}
+          errors={errors}
+          prefix={`${k}.scope`}
         />
       </div>
     </div>

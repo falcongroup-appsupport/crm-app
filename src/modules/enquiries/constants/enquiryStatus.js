@@ -91,3 +91,7 @@ export const ENQUIRY_FILTER_TASKS = [
   { key: "closed", label: "Closed Enquiries" },
   { key: "salesOrderCreated", label: "Sales Order Created" },
 ];
+
+// PERMIT and DRAWING are the fileTypes shown in CRM_APIS.pdf; OTHER is a
+// catch-all that the backend may or may not accept — confirm before relying on it.
+export const ATTACHMENT_TYPES = ["DRAWING", "PERMIT", "OTHER"];

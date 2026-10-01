@@ -20,7 +20,7 @@ export default function ActivityMasterPage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="space-y-6">
       <ConnectionBanner connected={connected} onRetry={refresh} />
       <div>
         <h1 className="font-display text-xl font-semibold text-ink-950 dark:text-white">Activity master</h1>

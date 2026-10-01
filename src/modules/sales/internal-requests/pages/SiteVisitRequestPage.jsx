@@ -60,7 +60,7 @@ export default function SiteVisitRequestPage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 pb-16">
+    <div className="space-y-6 pb-16">
       <div className="flex items-center gap-3">
         <Link to="/requests" className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-50 hover:text-ink-900 dark:hover:bg-ink-800 dark:hover:text-white">
           <ChevronLeft className="h-5 w-5" />
@@ -90,7 +90,7 @@ export default function SiteVisitRequestPage() {
         <div className="space-y-5 rounded-xl bg-white p-5 ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
           {!editing ? (
             <>
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%_-_3rem)/4)),1fr))] gap-4">
                 <ReadRow label="Appointment" value={draft.appointment && formatDateTime(draft.appointment)} />
                 <ReadRow label="Contact person" value={draft.contactPersonName} />
                 <ReadRow label="Contact number" value={draft.contactPersonNumber} />
@@ -117,7 +117,7 @@ export default function SiteVisitRequestPage() {
             </>
           ) : (
             <>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%_-_3rem)/4)),1fr))] gap-4">
                 <div>
                   <FieldLabel>Appointment</FieldLabel>
                   <Input type="datetime-local" value={draft.appointment || ""} onChange={(e) => set({ appointment: e.target.value })} />
@@ -180,7 +180,7 @@ export default function SiteVisitRequestPage() {
       {tab === "updates" && (
         <div className="space-y-4 rounded-xl bg-white p-5 ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
           <p className="text-xs font-semibold tracking-wide text-ink-400">Based on updates from the site schedule</p>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%_-_3rem)/4)),1fr))] gap-4">
             <ReadRow label="Site visit assigned to" value={draft.assignedTo} />
             <ReadRow label="Contact number" value={draft.contactPersonNumber} />
             <div>

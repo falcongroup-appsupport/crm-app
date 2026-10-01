@@ -70,13 +70,21 @@ export function useEnquiries() {
     [load, page],
   );
 
+  // Optimistic: the badge updates immediately, then only { currentStatus } is
+  // sent (form-data update is partial). Reverts if the call fails.
   const changeStatus = useCallback(
     async (id, currentStatus) => {
-      const target = enquiries.find((e) => e.id === id);
-      if (!target) return;
-      await updateEnquiry(id, { ...target, currentStatus });
+      const previous = enquiries.find((e) => e.id === id)?.currentStatus ?? null;
+      const apply = (value) => setEnquiries((prev) => prev.map((e) => (e.id === id ? { ...e, currentStatus: value } : e)));
+      apply(currentStatus);
+      try {
+        await enquiryApi.update(id, { currentStatus });
+      } catch (err) {
+        apply(previous);
+        throw err;
+      }
     },
-    [enquiries, updateEnquiry],
+    [enquiries],
   );
 
   // Local-only until a "close enquiry" endpoint exists.
@@ -89,11 +97,9 @@ export function useEnquiries() {
 
   const setSiteVisit = useCallback(
     async (id, siteVisit) => {
-      const target = enquiries.find((e) => e.id === id);
-      if (!target) return;
-      await updateEnquiry(id, { ...target, siteVisit, currentStatus: "SITE_VISIT_REQUIRED" });
+      await updateEnquiry(id, { siteVisit, currentStatus: "SITE_VISIT_REQUIRED" });
     },
-    [enquiries, updateEnquiry],
+    [updateEnquiry],
   );
 
   return {

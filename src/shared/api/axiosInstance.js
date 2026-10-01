@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Base URL comes from VITE_API_BASE_URL (see .env). Point this at whichever
 // machine is running the Spring Boot backend from CRM_APIS.pdf.
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081";
 
 const TOKEN_STORAGE_KEY = "survey-crm.auth-token";
 
@@ -68,9 +68,18 @@ axiosInstance.interceptors.response.use(
       if (err.response.status === 401) {
         setAuthToken(null);
       }
+      if (err.response.status === 413) {
+        throw new ApiError(
+          "The server rejected the upload as too large (HTTP 413). Use smaller files, or raise spring.servlet.multipart.max-file-size / max-request-size on the backend (and client_max_body_size if it sits behind nginx).",
+          413,
+        );
+      }
+      const data = err.response.data;
       const detail =
-        (typeof err.response.data === "string" && err.response.data) ||
-        err.response.data?.message ||
+        (typeof data === "string" && data) ||
+        data?.message ||
+        data?.detail ||
+        data?.error ||
         `Request failed (${err.response.status})`;
       throw new ApiError(detail, err.response.status);
     }

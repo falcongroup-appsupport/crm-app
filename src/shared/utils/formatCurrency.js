@@ -1,12 +1,9 @@
-// Not currently wired to any screen (the enquiry model dropped estimated
-// value), kept for the next module that needs money formatting.
-const currencyFormatter = new Intl.NumberFormat("en-AE", {
-  style: "currency",
-  currency: "AED",
-  maximumFractionDigits: 0,
-});
-
-export function formatCurrency(value) {
+// Money with two decimals in the given currency (quotation values are exact amounts).
+export function formatCurrency(value, currency = "AED") {
   if (value === null || value === undefined || value === "") return "—";
-  return currencyFormatter.format(Number(value));
+  try {
+    return new Intl.NumberFormat("en-AE", { style: "currency", currency, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value));
+  } catch {
+    return `${currency} ${Number(value).toFixed(2)}`;
+  }
 }

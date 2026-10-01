@@ -5,7 +5,6 @@ import { EnquiryToolbar } from "../components/EnquiryToolbar";
 import { EnquiryFilters } from "../components/EnquiryFilters";
 import { EnquiryTable } from "../components/EnquiryTable";
 import { ConnectionBanner } from "../../../shared/components/feedback/ConnectionBanner";
-import { ConfirmDialog } from "../../../shared/components/feedback/ConfirmDialog";
 import { EmptyState } from "../../../shared/components/feedback/EmptyState";
 import { Pagination } from "../../../shared/components/tables/Pagination";
 import { Loader } from "../../../shared/components/feedback/Loader";
@@ -13,12 +12,13 @@ import { useDebounce } from "../../../shared/hooks/useDebounce";
 
 export default function EnquiryListPage() {
   const navigate = useNavigate();
-  const { enquiries, loading, connected, page, totalPages, goToPage, refresh, deleteEnquiry } = useEnquiries();
+  const { enquiries, loading, connected, page, totalPages, goToPage, refresh, changeStatus } = useEnquiries();
 
   const [query, setQuery] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [activeTasks, setActiveTasks] = useState(["pending"]);
-  const [pendingDelete, setPendingDelete] = useState(null);
+  const [updatingId, setUpdatingId] = useState(null);
+  const [statusError, setStatusError] = useState(null);
   const debouncedQuery = useDebounce(query, 250);
 
   const filtered = useMemo(() => {
@@ -57,6 +57,18 @@ export default function EnquiryListPage() {
     return list;
   }, [enquiries, activeTasks, debouncedQuery]);
 
+  const handleStatusChange = async (enquiry, status) => {
+    setStatusError(null);
+    setUpdatingId(enquiry.id);
+    try {
+      await changeStatus(enquiry.id, status);
+    } catch (err) {
+      setStatusError(err?.message || "Could not update the status.");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <ConnectionBanner connected={connected} onRetry={refresh} />
@@ -65,59 +77,49 @@ export default function EnquiryListPage() {
         query={query}
         onQueryChange={setQuery}
         onNew={() => navigate("/enquiries/new")}
-        onToggleFilters={() => setFiltersOpen((v) => !v)}
+        onToggleFilters={() => setFiltersOpen(true)}
         filtersOpen={filtersOpen}
         activeFilterCount={activeTasks.includes("viewAll") ? 0 : activeTasks.length}
       />
 
-      <div className="flex items-start gap-4">
-        {filtersOpen && (
-          <EnquiryFilters
-            activeTasks={activeTasks}
-            onApply={(tasks) => {
-              setActiveTasks(tasks);
-              setFiltersOpen(false);
-            }}
-            onClose={() => setFiltersOpen(false)}
-          />
-        )}
+      {statusError && (
+        <p className="rounded-lg bg-signal-50 px-4 py-2.5 text-sm text-signal-700 ring-1 ring-inset ring-signal-200 dark:bg-signal-500/10 dark:text-signal-400 dark:ring-signal-500/30">
+          {statusError}
+        </p>
+      )}
 
-        <div className="flex-1 space-y-4">
-          {loading ? (
-            <div className="rounded-xl bg-white ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
-              <Loader label="Loading enquiries…" />
-            </div>
-          ) : filtered.length === 0 ? (
-            <EmptyState
-              title="No enquiries match those filters"
-              description="Try View All, clear the search, or register a new enquiry."
-              actionLabel="Add enquiry"
-              onAction={() => navigate("/enquiries/new")}
-            />
-          ) : (
-            <>
-              <EnquiryTable
-                enquiries={filtered}
-                onRowClick={(e) => navigate(`/enquiries/${e.id}`)}
-                onEdit={(e) => navigate(`/enquiries/${e.id}/edit`)}
-                onDelete={setPendingDelete}
-              />
-              <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
-            </>
-          )}
+      {loading ? (
+        <div className="rounded-xl bg-white ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
+          <Loader label="Loading enquiries…" />
         </div>
-      </div>
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          title="No enquiries match those filters"
+          description="Try View All, clear the search, or register a new enquiry."
+          actionLabel="Add enquiry"
+          onAction={() => navigate("/enquiries/new")}
+        />
+      ) : (
+        <>
+          <EnquiryTable
+            enquiries={filtered}
+            onRowClick={(e) => navigate(`/enquiries/${e.id}`)}
+            onEdit={(e) => navigate(`/enquiries/${e.id}/edit`)}
+            onStatusChange={handleStatusChange}
+            updatingId={updatingId}
+          />
+          <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
+        </>
+      )}
 
-      <ConfirmDialog
-        open={Boolean(pendingDelete)}
-        title="Delete this enquiry?"
-        description={pendingDelete ? `${pendingDelete.enquiryNo} · ${pendingDelete.customerName} will be permanently removed.` : ""}
-        confirmLabel="Delete"
-        onCancel={() => setPendingDelete(null)}
-        onConfirm={async () => {
-          await deleteEnquiry(pendingDelete.id);
-          setPendingDelete(null);
+      <EnquiryFilters
+        open={filtersOpen}
+        activeTasks={activeTasks}
+        onApply={(tasks) => {
+          setActiveTasks(tasks);
+          setFiltersOpen(false);
         }}
+        onClose={() => setFiltersOpen(false)}
       />
     </div>
   );

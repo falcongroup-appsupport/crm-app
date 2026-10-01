@@ -15,10 +15,10 @@ export const NAV_GROUPS = [
     label: "Sales",
     icon: BadgeDollarSign,
     items: [
-      { label: "Sales Quotation", to: "/coming-soon/sales-quotation" },
+      { label: "Sales Quotation", to: "/quotations" },
       { label: "Sales Orders", to: "/coming-soon/sales-orders" },
       { label: "Direct Sales", to: "/coming-soon/direct-sales" },
-      { label: "Sales Follow Up", to: "/coming-soon/sales-follow-up" },
+      { label: "Sales Follow Up", to: "/follow-ups" },
     ],
   },
   {
@@ -77,7 +77,7 @@ export const NAV_GROUPS = [
       { label: "Activity Master", to: "/activities" },
       { label: "UOM", to: "/coming-soon/uom-master" },
       { label: "Resource Master", to: "/coming-soon/resource-master" },
-      { label: "Quotation Master", to: "/coming-soon/quotation-master" },
+      { label: "Quotation Master", to: "/quotation-templates" },
       { label: "Survey Report Master", to: "/coming-soon/survey-report-master" },
       { label: "Benchmark Master", to: "/coming-soon/benchmark-master" },
       { label: "Project Master", to: "/coming-soon/project-master" },

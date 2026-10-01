@@ -7,3 +7,4 @@ export { FieldLabel } from "./FieldLabel";
 export { Checkbox } from "./Checkbox";
 export { Toggle } from "./Toggle";
 export { FileUpload } from "./FileUpload";
+export { FieldError } from "./FieldError";
