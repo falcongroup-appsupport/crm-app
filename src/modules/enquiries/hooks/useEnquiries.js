@@ -19,14 +19,21 @@ export function useEnquiries() {
     setLoading(true);
     setError(null);
     try {
-      const data = await enquiryApi.getAll({ page: targetPage, size: PAGE_SIZE });
+      const data = await enquiryApi.getAll({
+        page: targetPage,
+        size: PAGE_SIZE,
+      });
       setEnquiries(Array.isArray(data?.content) ? data.content : []);
       setTotalPages(data?.totalPages ?? 1);
       setPage(data?.number ?? targetPage);
       setConnected(true);
     } catch (err) {
       setConnected(false);
-      setError(err instanceof ApiError ? err.message : "Unexpected error loading enquiries");
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Unexpected error loading enquiries",
+      );
       setEnquiries([]);
       setTotalPages(1);
       setPage(0);
@@ -46,7 +53,8 @@ export function useEnquiries() {
 
   const createEnquiry = useCallback(
     async (payload) => {
-      const result = await enquiryApi.save({ ...payload, enquiryType: "NEW" });
+      // NEW by default; the add-to-existing flow passes enquiryType EXISTING + selectedEnquiryId
+      const result = await enquiryApi.save({ enquiryType: "NEW", ...payload });
       await load(page);
       return result;
     },
@@ -74,8 +82,12 @@ export function useEnquiries() {
   // sent (form-data update is partial). Reverts if the call fails.
   const changeStatus = useCallback(
     async (id, currentStatus) => {
-      const previous = enquiries.find((e) => e.id === id)?.currentStatus ?? null;
-      const apply = (value) => setEnquiries((prev) => prev.map((e) => (e.id === id ? { ...e, currentStatus: value } : e)));
+      const previous =
+        enquiries.find((e) => e.id === id)?.currentStatus ?? null;
+      const apply = (value) =>
+        setEnquiries((prev) =>
+          prev.map((e) => (e.id === id ? { ...e, currentStatus: value } : e)),
+        );
       apply(currentStatus);
       try {
         await enquiryApi.update(id, { currentStatus });
@@ -97,7 +109,10 @@ export function useEnquiries() {
 
   const setSiteVisit = useCallback(
     async (id, siteVisit) => {
-      await updateEnquiry(id, { siteVisit, currentStatus: "SITE_VISIT_REQUIRED" });
+      await updateEnquiry(id, {
+        siteVisit,
+        currentStatus: "SITE_VISIT_REQUIRED",
+      });
     },
     [updateEnquiry],
   );

@@ -34,7 +34,9 @@ export function Pagination({ page, totalPages, onChange }) {
             onClick={() => onChange(p)}
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium",
-              p === page ? "bg-ink-950 text-white dark:bg-white dark:text-ink-950" : "text-ink-500 hover:bg-ink-50 dark:text-ink-400 dark:hover:bg-ink-800",
+              p === page
+                ? "bg-ink-950 text-white dark:bg-white dark:text-ink-950"
+                : "text-ink-500 hover:bg-ink-50 dark:text-ink-400 dark:hover:bg-ink-800",
             )}
           >
             {p + 1}

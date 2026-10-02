@@ -27,9 +27,14 @@ export function Breadcrumbs() {
           <span key={to} className="flex items-center gap-1.5">
             <ChevronRight className="h-3 w-3" />
             {isLast ? (
-              <span className="font-medium text-ink-600 dark:text-ink-300">{label}</span>
+              <span className="font-medium text-ink-600 dark:text-ink-300">
+                {label}
+              </span>
             ) : (
-              <Link to={to} className="hover:text-ink-700 dark:hover:text-ink-200">
+              <Link
+                to={to}
+                className="hover:text-ink-700 dark:hover:text-ink-200"
+              >
                 {label}
               </Link>
             )}

@@ -3,9 +3,14 @@ import { createPortal } from "react-dom";
 import { Check, ChevronDown, Loader2 } from "lucide-react";
 import { Badge } from "../../../shared/components/ui/Badge";
 import { cn } from "../../../shared/utils/cn";
-import { CURRENT_STATUSES, STATUS_LABEL, STATUS_STYLES } from "../constants/enquiryStatus";
+import {
+  CURRENT_STATUSES,
+  STATUS_LABEL,
+  STATUS_STYLES,
+} from "../constants/enquiryStatus";
 
-const NOT_SET_TONE = "bg-ink-50 text-ink-400 ring-1 ring-inset ring-ink-100 dark:bg-ink-800 dark:text-ink-500 dark:ring-ink-700";
+const NOT_SET_TONE =
+  "bg-ink-50 text-ink-400 ring-1 ring-inset ring-ink-100 dark:bg-ink-800 dark:text-ink-500 dark:ring-ink-700";
 
 /**
  * Colored status button that opens a menu of every status — used on the
@@ -22,14 +27,19 @@ export function StatusMenu({ status, onChange, busy = false }) {
     if (!open || !buttonRef.current) return;
     const rect = buttonRef.current.getBoundingClientRect();
     const menuHeight = 10 * 36 + 16;
-    const up = window.innerHeight - rect.bottom < menuHeight && rect.top > menuHeight;
+    const up =
+      window.innerHeight - rect.bottom < menuHeight && rect.top > menuHeight;
     setPos({ top: up ? rect.top - 6 : rect.bottom + 6, left: rect.left, up });
   }, [open]);
 
   useEffect(() => {
     if (!open) return;
     const close = (e) => {
-      if (menuRef.current?.contains(e.target) || buttonRef.current?.contains(e.target)) return;
+      if (
+        menuRef.current?.contains(e.target) ||
+        buttonRef.current?.contains(e.target)
+      )
+        return;
       setOpen(false);
     };
     const onKey = (e) => e.key === "Escape" && setOpen(false);
@@ -46,7 +56,9 @@ export function StatusMenu({ status, onChange, busy = false }) {
     };
   }, [open]);
 
-  const tone = status ? (STATUS_STYLES[status] ?? STATUS_STYLES.SELECT) : NOT_SET_TONE;
+  const tone = status
+    ? (STATUS_STYLES[status] ?? STATUS_STYLES.SELECT)
+    : NOT_SET_TONE;
 
   return (
     <>
@@ -64,7 +76,11 @@ export function StatusMenu({ status, onChange, busy = false }) {
       >
         <Badge tone={tone} className="gap-1.5 pr-2">
           {status ? (STATUS_LABEL[status] ?? status) : "Not set"}
-          {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : <ChevronDown className="h-3 w-3 opacity-70" />}
+          {busy ? (
+            <Loader2 className="h-3 w-3 animate-spin" />
+          ) : (
+            <ChevronDown className="h-3 w-3 opacity-70" />
+          )}
         </Badge>
       </button>
 
@@ -73,7 +89,11 @@ export function StatusMenu({ status, onChange, busy = false }) {
           <div
             ref={menuRef}
             role="listbox"
-            style={{ top: pos.top, left: pos.left, transform: pos.up ? "translateY(-100%)" : undefined }}
+            style={{
+              top: pos.top,
+              left: pos.left,
+              transform: pos.up ? "translateY(-100%)" : undefined,
+            }}
             className="fixed z-[80] w-60 rounded-xl bg-white p-1.5 shadow-panel ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800"
             onClick={(e) => e.stopPropagation()}
           >
@@ -93,7 +113,9 @@ export function StatusMenu({ status, onChange, busy = false }) {
                 )}
               >
                 <Badge tone={STATUS_STYLES[s.value]}>{s.label}</Badge>
-                {s.value === status && <Check className="h-4 w-4 text-ink-500" />}
+                {s.value === status && (
+                  <Check className="h-4 w-4 text-ink-500" />
+                )}
               </button>
             ))}
           </div>,

@@ -17,7 +17,9 @@ export function useEnquiry(id, { enabled = true } = {}) {
       setEnquiry(data);
     } catch (err) {
       setEnquiry(null);
-      setError(err instanceof ApiError ? err.message : "Could not load this enquiry.");
+      setError(
+        err instanceof ApiError ? err.message : "Could not load this enquiry.",
+      );
     } finally {
       setLoading(false);
     }

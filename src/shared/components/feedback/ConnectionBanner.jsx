@@ -8,10 +8,15 @@ export function ConnectionBanner({ connected, onRetry }) {
       <div className="flex items-center gap-2">
         <WifiOff className="h-4 w-4 shrink-0" />
         <span>
-          Can't reach the API at <span className="font-mono text-xs">{API_BASE_URL}</span> — showing demo data.
+          Can't reach the API at{" "}
+          <span className="font-mono text-xs">{API_BASE_URL}</span> — showing
+          demo data.
         </span>
       </div>
-      <button onClick={onRetry} className="font-medium underline underline-offset-2 hover:no-underline">
+      <button
+        onClick={onRetry}
+        className="font-medium underline underline-offset-2 hover:no-underline"
+      >
         Retry
       </button>
     </div>

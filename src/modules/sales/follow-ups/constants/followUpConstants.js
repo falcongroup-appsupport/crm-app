@@ -10,4 +10,6 @@ export const FOLLOW_UP_STATUSES = [
   { value: "REJECTED", label: "Rejected" },
 ];
 
-export const FOLLOW_UP_STATUS_LABEL = Object.fromEntries(FOLLOW_UP_STATUSES.map((s) => [s.value, s.label]));
+export const FOLLOW_UP_STATUS_LABEL = Object.fromEntries(
+  FOLLOW_UP_STATUSES.map((s) => [s.value, s.label]),
+);

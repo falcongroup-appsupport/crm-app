@@ -1,6 +1,20 @@
-import { LayoutDashboard, Inbox, BadgeDollarSign, FolderKanban, CalendarRange, MapPin, PencilRuler, Receipt, Database } from "lucide-react";
+import {
+  LayoutDashboard,
+  Inbox,
+  BadgeDollarSign,
+  FolderKanban,
+  CalendarRange,
+  MapPin,
+  PencilRuler,
+  Receipt,
+  Database,
+} from "lucide-react";
 
-export const NAV_DASHBOARD = { label: "Dashboard", icon: LayoutDashboard, to: "/dashboard" };
+export const NAV_DASHBOARD = {
+  label: "Dashboard",
+  icon: LayoutDashboard,
+  to: "/dashboard",
+};
 
 export const NAV_GROUPS = [
   {
@@ -27,8 +41,14 @@ export const NAV_GROUPS = [
     items: [
       { label: "Project Dashboard", to: "/coming-soon/project-dashboard" },
       { label: "Register Comments", to: "/coming-soon/register-comments" },
-      { label: "Generate Completion Letter", to: "/coming-soon/completion-letter" },
-      { label: "Resource Manager", to: "/coming-soon/resource-manager-projects" },
+      {
+        label: "Generate Completion Letter",
+        to: "/coming-soon/completion-letter",
+      },
+      {
+        label: "Resource Manager",
+        to: "/coming-soon/resource-manager-projects",
+      },
     ],
   },
   {
@@ -36,7 +56,10 @@ export const NAV_GROUPS = [
     icon: CalendarRange,
     items: [
       { label: "Project Dashboard", to: "/coming-soon/planning-dashboard" },
-      { label: "Resource Manager", to: "/coming-soon/resource-manager-planning" },
+      {
+        label: "Resource Manager",
+        to: "/coming-soon/resource-manager-planning",
+      },
     ],
   },
   {
@@ -54,8 +77,14 @@ export const NAV_GROUPS = [
     icon: PencilRuler,
     items: [
       { label: "Projects Dashboard", to: "/coming-soon/design-dashboard" },
-      { label: "Cloud Point Register", to: "/coming-soon/cloud-point-register" },
-      { label: "Setting-Out Register", to: "/coming-soon/setting-out-register" },
+      {
+        label: "Cloud Point Register",
+        to: "/coming-soon/cloud-point-register",
+      },
+      {
+        label: "Setting-Out Register",
+        to: "/coming-soon/setting-out-register",
+      },
       { label: "QA/QC Register", to: "/coming-soon/qaqc-register" },
       { label: "Production Manager", to: "/coming-soon/production-manager" },
       { label: "Create Certificates", to: "/coming-soon/create-certificates" },
@@ -78,7 +107,10 @@ export const NAV_GROUPS = [
       { label: "UOM", to: "/coming-soon/uom-master" },
       { label: "Resource Master", to: "/coming-soon/resource-master" },
       { label: "Quotation Master", to: "/quotation-templates" },
-      { label: "Survey Report Master", to: "/coming-soon/survey-report-master" },
+      {
+        label: "Survey Report Master",
+        to: "/coming-soon/survey-report-master",
+      },
       { label: "Benchmark Master", to: "/coming-soon/benchmark-master" },
       { label: "Project Master", to: "/coming-soon/project-master" },
     ],

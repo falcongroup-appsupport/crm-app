@@ -16,8 +16,10 @@ const TYPE_LABEL = {
 
 const STATUS_STYLE = {
   OPEN: "bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:ring-blue-500/30",
-  CLOSED: "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/30",
-  CANCELLED: "bg-ink-100 text-ink-500 ring-1 ring-inset ring-ink-200 dark:bg-ink-700 dark:text-ink-400 dark:ring-ink-600",
+  CLOSED:
+    "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/30",
+  CANCELLED:
+    "bg-ink-100 text-ink-500 ring-1 ring-inset ring-ink-200 dark:bg-ink-700 dark:text-ink-400 dark:ring-ink-600",
 };
 
 export default function InternalRequestsPage() {
@@ -33,14 +35,20 @@ export default function InternalRequestsPage() {
     if (!tasks.includes("viewAll")) {
       list = list.filter((r) => {
         if (tasks.includes("open") && r.currentStatus === "OPEN") return true;
-        if (tasks.includes("closed") && r.currentStatus === "CLOSED") return true;
-        if (tasks.includes("cancelled") && r.currentStatus === "CANCELLED") return true;
+        if (tasks.includes("closed") && r.currentStatus === "CLOSED")
+          return true;
+        if (tasks.includes("cancelled") && r.currentStatus === "CANCELLED")
+          return true;
         return tasks.length === 0;
       });
     }
     const q = query.trim().toLowerCase();
     if (q) {
-      list = list.filter((r) => `${r.requestNumber} ${r.referenceNumber} ${r.nameOfCustomer}`.toLowerCase().includes(q));
+      list = list.filter((r) =>
+        `${r.requestNumber} ${r.referenceNumber} ${r.nameOfCustomer}`
+          .toLowerCase()
+          .includes(q),
+      );
     }
     return list;
   }, [requests, tasks, query]);
@@ -61,7 +69,9 @@ export default function InternalRequestsPage() {
           <SlidersHorizontal className="h-4 w-4" />
           Filter by task
           {!tasks.includes("viewAll") && tasks.length > 0 && (
-            <span className="ml-0.5 rounded-full bg-ink-900/10 px-1.5 text-xs dark:bg-white/15">{tasks.length}</span>
+            <span className="ml-0.5 rounded-full bg-ink-900/10 px-1.5 text-xs dark:bg-white/15">
+              {tasks.length}
+            </span>
           )}
         </Button>
       </div>
@@ -78,8 +88,21 @@ export default function InternalRequestsPage() {
               <table className="w-full min-w-[920px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-ink-100 text-xs text-ink-400 dark:border-ink-800">
-                    {["Creation date", "Request number", "Reference number", "By", "Type", "Customer", "Remarks", "Status", ""].map((c) => (
-                      <th key={c} className="whitespace-nowrap px-5 py-3 font-medium">
+                    {[
+                      "Creation date",
+                      "Request number",
+                      "Reference number",
+                      "By",
+                      "Type",
+                      "Customer",
+                      "Remarks",
+                      "Status",
+                      "",
+                    ].map((c) => (
+                      <th
+                        key={c}
+                        className="whitespace-nowrap px-5 py-3 font-medium"
+                      >
                         {c}
                       </th>
                     ))}
@@ -90,21 +113,39 @@ export default function InternalRequestsPage() {
                     <tr
                       key={r.id}
                       className="cursor-pointer border-b border-ink-50 last:border-0 hover:bg-ink-50/60 dark:border-ink-800 dark:hover:bg-ink-800/60"
-                      onClick={() => (r.typeOfRequest.startsWith("SITE_VISIT") ? navigate(`/requests/${r.id}`) : null)}
+                      onClick={() =>
+                        r.typeOfRequest.startsWith("SITE_VISIT")
+                          ? navigate(`/requests/${r.id}`)
+                          : null
+                      }
                     >
-                      <td className="whitespace-nowrap px-5 py-3.5 text-ink-500">{formatDateTime(r.creationDate)}</td>
-                      <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs font-medium text-ink-900 dark:text-ink-50">{r.requestNumber}</td>
-                      <td className="whitespace-nowrap px-5 py-3.5 text-ink-500">{r.referenceNumber}</td>
+                      <td className="whitespace-nowrap px-5 py-3.5 text-ink-500">
+                        {formatDateTime(r.creationDate)}
+                      </td>
+                      <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs font-medium text-ink-900 dark:text-ink-50">
+                        {r.requestNumber}
+                      </td>
+                      <td className="whitespace-nowrap px-5 py-3.5 text-ink-500">
+                        {r.referenceNumber}
+                      </td>
                       <td className="px-5 py-3.5">
                         <div className="flex h-7 w-7 items-center justify-center rounded-full bg-ink-100 text-[10px] font-semibold text-ink-600 dark:bg-ink-700 dark:text-ink-200">
                           {initials(r.requestedBy)}
                         </div>
                       </td>
-                      <td className="whitespace-nowrap px-5 py-3.5 text-ink-600">{TYPE_LABEL[r.typeOfRequest] || r.typeOfRequest}</td>
-                      <td className="px-5 py-3.5 font-medium text-ink-900 dark:text-ink-50">{r.nameOfCustomer}</td>
-                      <td className="max-w-[220px] truncate px-5 py-3.5 text-ink-500">{r.remarks || "—"}</td>
+                      <td className="whitespace-nowrap px-5 py-3.5 text-ink-600">
+                        {TYPE_LABEL[r.typeOfRequest] || r.typeOfRequest}
+                      </td>
+                      <td className="px-5 py-3.5 font-medium text-ink-900 dark:text-ink-50">
+                        {r.nameOfCustomer}
+                      </td>
+                      <td className="max-w-[220px] truncate px-5 py-3.5 text-ink-500">
+                        {r.remarks || "—"}
+                      </td>
                       <td className="px-5 py-3.5">
-                        <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_STYLE[r.currentStatus]}`}>
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_STYLE[r.currentStatus]}`}
+                        >
                           {r.currentStatus}
                         </span>
                       </td>

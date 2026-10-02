@@ -7,9 +7,16 @@ export default function ForbiddenPage() {
       <div className="flex h-11 w-11 items-center justify-center rounded-full bg-signal-50 dark:bg-signal-500/10">
         <ShieldAlert className="h-5 w-5 text-signal-600 dark:text-signal-400" />
       </div>
-      <h2 className="mt-4 font-display text-base font-semibold text-ink-900 dark:text-white">You don't have access to this page</h2>
-      <p className="mt-1 max-w-xs text-sm text-ink-400">Contact an admin if you think this is a mistake.</p>
-      <Link to="/" className="mt-5 text-sm font-medium text-signal-600 hover:text-signal-700">
+      <h2 className="mt-4 font-display text-base font-semibold text-ink-900 dark:text-white">
+        You don't have access to this page
+      </h2>
+      <p className="mt-1 max-w-xs text-sm text-ink-400">
+        Contact an admin if you think this is a mistake.
+      </p>
+      <Link
+        to="/"
+        className="mt-5 text-sm font-medium text-signal-600 hover:text-signal-700"
+      >
         Back to home
       </Link>
     </div>

@@ -3,7 +3,15 @@ import { X } from "lucide-react";
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 
-export function Drawer({ open, onClose, title, subtitle, width = "max-w-lg", children, footer }) {
+export function Drawer({
+  open,
+  onClose,
+  title,
+  subtitle,
+  width = "max-w-lg",
+  children,
+  footer,
+}) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => e.key === "Escape" && onClose();
@@ -36,8 +44,12 @@ export function Drawer({ open, onClose, title, subtitle, width = "max-w-lg", chi
           >
             <div className="flex items-start justify-between border-b border-ink-100 px-6 py-5 dark:border-ink-800">
               <div>
-                <h2 className="font-display text-lg font-semibold text-ink-950 dark:text-white">{title}</h2>
-                {subtitle && <p className="mt-0.5 text-sm text-ink-400">{subtitle}</p>}
+                <h2 className="font-display text-lg font-semibold text-ink-950 dark:text-white">
+                  {title}
+                </h2>
+                {subtitle && (
+                  <p className="mt-0.5 text-sm text-ink-400">{subtitle}</p>
+                )}
               </div>
               <button
                 onClick={onClose}
@@ -48,7 +60,11 @@ export function Drawer({ open, onClose, title, subtitle, width = "max-w-lg", chi
               </button>
             </div>
             <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
-            {footer && <div className="border-t border-ink-100 px-6 py-4 dark:border-ink-800">{footer}</div>}
+            {footer && (
+              <div className="border-t border-ink-100 px-6 py-4 dark:border-ink-800">
+                {footer}
+              </div>
+            )}
           </motion.div>
         </div>
       )}

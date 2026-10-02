@@ -8,6 +8,8 @@ export const followUpApi = {
     return axiosInstance.get(`/api/follow-feedback/${id}`);
   },
   getByQuotation(quotationId, { page = 0, size = 20 } = {}) {
-    return axiosInstance.get(`/api/follow-feedback/quotation/${quotationId}`, { params: { page, size } });
+    return axiosInstance.get(`/api/follow-feedback/quotation/${quotationId}`, {
+      params: { page, size },
+    });
   },
 };

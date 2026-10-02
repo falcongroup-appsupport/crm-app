@@ -27,7 +27,12 @@ export function ProfileMenu() {
   const items = [
     { label: "Profile", icon: User, onClick: () => setOpen(false) },
     { label: "Settings", icon: Settings, onClick: () => setOpen(false) },
-    { label: "Log out", icon: LogOut, danger: true, onClick: () => setOpen(false) },
+    {
+      label: "Log out",
+      icon: LogOut,
+      danger: true,
+      onClick: () => setOpen(false),
+    },
   ];
 
   return (
@@ -39,7 +44,9 @@ export function ProfileMenu() {
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-ink-900 text-xs font-semibold text-white dark:bg-ink-100 dark:text-ink-900">
           {initials(NAME)}
         </div>
-        <ChevronDown className={`hidden h-3.5 w-3.5 text-ink-400 transition-transform sm:block ${open ? "rotate-180" : ""}`} />
+        <ChevronDown
+          className={`hidden h-3.5 w-3.5 text-ink-400 transition-transform sm:block ${open ? "rotate-180" : ""}`}
+        />
       </button>
 
       <AnimatePresence>
@@ -52,7 +59,9 @@ export function ProfileMenu() {
             className="absolute right-0 z-40 mt-2 w-56 overflow-hidden rounded-xl bg-white shadow-panel ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800"
           >
             <div className="border-b border-ink-100 px-4 py-3 dark:border-ink-800">
-              <p className="truncate text-sm font-medium text-ink-900 dark:text-ink-50">{NAME}</p>
+              <p className="truncate text-sm font-medium text-ink-900 dark:text-ink-50">
+                {NAME}
+              </p>
               <p className="truncate text-xs text-ink-400">{ROLE}</p>
             </div>
             <div className="p-1.5">

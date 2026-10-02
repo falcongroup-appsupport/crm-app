@@ -4,6 +4,7 @@ import { Modal } from "../../../../shared/components/ui/Modal";
 import { Button } from "../../../../shared/components/ui/Button";
 import { FieldLabel, Input } from "../../../../shared/components/forms";
 import { ApiError } from "../../../../shared/api/axiosInstance";
+import { useToast } from "../../../../shared/components/feedback/toast/useToast";
 
 /** Create (template = null) or edit a quotation template. On edit the file is optional. */
 export function TemplateFormModal({ open, onClose, template, onSubmit }) {
@@ -12,7 +13,7 @@ export function TemplateFormModal({ open, onClose, template, onSubmit }) {
   const [file, setFile] = useState(null);
   const [wasOpen, setWasOpen] = useState(open);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  const toast = useToast();
   const inputRef = useRef(null);
 
   if (open !== wasOpen) {
@@ -20,18 +21,22 @@ export function TemplateFormModal({ open, onClose, template, onSubmit }) {
     if (open) {
       setName(template?.name ?? "");
       setFile(null);
-      setError(null);
     }
   }
 
   const submit = async () => {
     setSaving(true);
-    setError(null);
     try {
       await onSubmit({ name: name.trim(), file });
+      toast.success(isEdit ? "Template updated" : "Template uploaded", {
+        description: name.trim(),
+      });
       onClose();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Could not save the template.");
+      toast.error("Couldn't save the template", {
+        description:
+          err instanceof ApiError ? err.message : "Please try again.",
+      });
     } finally {
       setSaving(false);
     }
@@ -47,7 +52,7 @@ export function TemplateFormModal({ open, onClose, template, onSubmit }) {
       width="max-w-md"
       footer={
         <div className="flex items-center justify-between gap-3">
-          <p className="text-xs text-signal-600 dark:text-signal-400">{error}</p>
+          <span />
           <div className="flex gap-2">
             <Button variant="secondary" size="sm" onClick={onClose}>
               Cancel
@@ -62,7 +67,11 @@ export function TemplateFormModal({ open, onClose, template, onSubmit }) {
       <div className="space-y-4">
         <div>
           <FieldLabel required>Name</FieldLabel>
-          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Standard Quotation Template" />
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Standard Quotation Template"
+          />
         </div>
         <div>
           <FieldLabel required={!isEdit}>File (PDF, DOCX…)</FieldLabel>
@@ -71,13 +80,30 @@ export function TemplateFormModal({ open, onClose, template, onSubmit }) {
             onClick={() => inputRef.current?.click()}
             className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-ink-200 bg-ink-50 px-4 py-4 text-sm text-ink-500 transition-colors hover:border-signal-300 hover:text-signal-600 dark:border-ink-700 dark:bg-ink-800 dark:text-ink-400"
           >
-            {file ? <FileText className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
-            {file ? file.name : isEdit ? "Replace file (optional)" : "Choose a file"}
+            {file ? (
+              <FileText className="h-4 w-4" />
+            ) : (
+              <Upload className="h-4 w-4" />
+            )}
+            {file
+              ? file.name
+              : isEdit
+                ? "Replace file (optional)"
+                : "Choose a file"}
           </button>
-          <input ref={inputRef} type="file" className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-          {isEdit && !file && (template?.fileName || template?.originalFileName) && (
-            <p className="mt-1.5 text-xs text-ink-400">Current file: {template.fileName ?? template.originalFileName}</p>
-          )}
+          <input
+            ref={inputRef}
+            type="file"
+            className="hidden"
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          />
+          {isEdit &&
+            !file &&
+            (template?.fileName || template?.originalFileName) && (
+              <p className="mt-1.5 text-xs text-ink-400">
+                Current file: {template.fileName ?? template.originalFileName}
+              </p>
+            )}
         </div>
       </div>
     </Modal>

@@ -1,7 +1,13 @@
-import { DEFAULT_DURATION_DESCRIPTIONS, DEFAULT_VAT_PERCENTAGE } from "../constants/quotationConstants";
+import {
+  DEFAULT_DURATION_DESCRIPTIONS,
+  DEFAULT_VAT_PERCENTAGE,
+} from "../constants/quotationConstants";
 
 const str = (v) => (v === null || v === undefined ? "" : v);
-const num = (v) => (v === "" || v === null || v === undefined || Number.isNaN(Number(v)) ? 0 : Number(v));
+const num = (v) =>
+  v === "" || v === null || v === undefined || Number.isNaN(Number(v))
+    ? 0
+    : Number(v);
 const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 
 export const emptyItem = () => ({
@@ -14,7 +20,12 @@ export const emptyItem = () => ({
   vatPercentage: DEFAULT_VAT_PERCENTAGE,
 });
 
-export const emptyDuration = (description = "") => ({ description, unit: "Days", duration: "", remarks: "" });
+export const emptyDuration = (description = "") => ({
+  description,
+  unit: "Days",
+  duration: "",
+  remarks: "",
+});
 
 const emptyAddress = () => ({
   emirate: "",
@@ -40,11 +51,21 @@ export function computeTotals(items, discount) {
   const subtotal = round2(lines.reduce((s, l) => s + l.amount, 0));
   const salesTax = round2(lines.reduce((s, l) => s + l.vatAED, 0));
   const disc = num(discount);
-  return { subtotal, salesTax, discount: disc, total: round2(subtotal + salesTax - disc) };
+  return {
+    subtotal,
+    salesTax,
+    discount: disc,
+    total: round2(subtotal + salesTax - disc),
+  };
 }
 
 export function computeTotalDays(durations) {
-  return round2(durations.reduce((s, d) => s + num(d.duration) * (d.unit === "Weeks" ? 7 : 1), 0));
+  return round2(
+    durations.reduce(
+      (s, d) => s + num(d.duration) * (d.unit === "Weeks" ? 7 : 1),
+      0,
+    ),
+  );
 }
 
 // ---- form state
@@ -99,12 +120,29 @@ export function normalizeQuotation(q) {
     emailId: str(q?.emailId),
     contactNumber: str(q?.contactNumber),
     projectName: str(q?.projectName),
-    customerAddress: Object.fromEntries(Object.keys(emptyAddress()).map((k) => [k, str(q?.customerAddress?.[k])])),
+    customerAddress: Object.fromEntries(
+      Object.keys(emptyAddress()).map((k) => [k, str(q?.customerAddress?.[k])]),
+    ),
     items: q?.items?.length
-      ? q.items.map((it) => ({ ...it, activityId: str(it.activityId), activityName: str(it.activityName), itemDescription: str(it.itemDescription), unit: it.unit || "LS", quantity: it.quantity ?? 1, rate: it.rate ?? 0, vatPercentage: it.vatPercentage ?? DEFAULT_VAT_PERCENTAGE }))
+      ? q.items.map((it) => ({
+          ...it,
+          activityId: str(it.activityId),
+          activityName: str(it.activityName),
+          itemDescription: str(it.itemDescription),
+          unit: it.unit || "LS",
+          quantity: it.quantity ?? 1,
+          rate: it.rate ?? 0,
+          vatPercentage: it.vatPercentage ?? DEFAULT_VAT_PERCENTAGE,
+        }))
       : [emptyItem()],
     durations: q?.durations?.length
-      ? q.durations.map((d) => ({ ...d, description: str(d.description), unit: d.unit || "Days", duration: str(d.duration), remarks: str(d.remarks) }))
+      ? q.durations.map((d) => ({
+          ...d,
+          description: str(d.description),
+          unit: d.unit || "Days",
+          duration: str(d.duration),
+          remarks: str(d.remarks),
+        }))
       : DEFAULT_DURATION_DESCRIPTIONS.map((d) => emptyDuration(d)),
     discount: q?.discount ?? 0,
     paymentTermId: str(q?.paymentTermId),
@@ -155,12 +193,15 @@ export function buildQuotationPayload(form, enquiryId) {
     emailId: form.emailId,
     contactNumber: form.contactNumber,
     projectName: form.projectName,
-    selectedActivityIds: [...new Set(items.map((i) => i.activityId).filter((v) => v !== null))],
+    selectedActivityIds: [
+      ...new Set(items.map((i) => i.activityId).filter((v) => v !== null)),
+    ],
     durations,
     estimatedTotalDays: computeTotalDays(form.durations),
     items,
     ...totals,
-    paymentTermId: form.paymentTermId === "" ? null : Number(form.paymentTermId),
+    paymentTermId:
+      form.paymentTermId === "" ? null : Number(form.paymentTermId),
     detailedPaymentTerms: form.detailedPaymentTerms,
     internalRemarks: form.internalRemarks,
     termsAndConditions: form.termsAndConditions,

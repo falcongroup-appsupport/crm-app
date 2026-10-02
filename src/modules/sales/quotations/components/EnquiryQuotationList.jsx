@@ -22,8 +22,12 @@ const MODES = {
       { key: "pending", label: "Pending quotation" },
       { key: "issued", label: "Quotations issued" },
     ],
-    filter: (tab, e) => (tab === "issued" ? ISSUED.includes(e.currentStatus) : !ISSUED.includes(e.currentStatus)),
-    action: (tab) => (tab === "issued" ? "View quotation" : "Create / open quotation"),
+    filter: (tab, e) =>
+      tab === "issued"
+        ? ISSUED.includes(e.currentStatus)
+        : !ISSUED.includes(e.currentStatus),
+    action: (tab) =>
+      tab === "issued" ? "View quotation" : "Create / open quotation",
     target: (e) => `/enquiries/${e.id}/quotation`,
     empty: "No enquiries here yet.",
   },
@@ -39,7 +43,8 @@ const MODES = {
 export function EnquiryQuotationList({ mode }) {
   const cfg = MODES[mode];
   const navigate = useNavigate();
-  const { enquiries, loading, connected, page, totalPages, goToPage, refresh } = useEnquiries();
+  const { enquiries, loading, connected, page, totalPages, goToPage, refresh } =
+    useEnquiries();
   const [tab, setTab] = useState(cfg.tabs?.[0].key ?? "all");
   const [query, setQuery] = useState("");
 
@@ -47,7 +52,13 @@ export function EnquiryQuotationList({ mode }) {
     const q = query.trim().toLowerCase();
     return enquiries
       .filter((e) => cfg.filter(tab, e))
-      .filter((e) => !q || `${e.enquiryNo} ${e.customerName} ${e.companyName}`.toLowerCase().includes(q));
+      .filter(
+        (e) =>
+          !q ||
+          `${e.enquiryNo} ${e.companyName} ${e.contactPerson ?? e.customerName ?? ""}`
+            .toLowerCase()
+            .includes(q),
+      );
   }, [enquiries, cfg, tab, query]);
 
   return (
@@ -65,7 +76,7 @@ export function EnquiryQuotationList({ mode }) {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by enquiry number, customer or company…"
+            placeholder="Search by enquiry number, company or contact person…"
             className="h-9 w-full rounded-lg bg-white pl-9 pr-3 text-sm text-ink-900 placeholder:text-ink-400 ring-1 ring-inset ring-ink-100 focus:ring-2 focus:ring-signal-500 dark:bg-ink-800 dark:text-ink-50 dark:ring-ink-700 dark:placeholder:text-ink-500"
           />
         </div>
@@ -76,15 +87,29 @@ export function EnquiryQuotationList({ mode }) {
           <Loader label="Loading enquiries…" />
         </div>
       ) : rows.length === 0 ? (
-        <EmptyState title={cfg.empty} description="Enquiries appear here as their status moves through the quotation stages." />
+        <EmptyState
+          title={cfg.empty}
+          description="Enquiries appear here as their status moves through the quotation stages."
+        />
       ) : (
         <div className="overflow-hidden rounded-xl bg-white ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[860px] text-left text-sm">
               <thead>
                 <tr className="border-b border-ink-100 text-xs text-ink-400 dark:border-ink-800">
-                  {["Enquiry No.", "Customer / Client", "Company", "Date of Enquiry", "Status", "Submission Deadline", ""].map((c) => (
-                    <th key={c} className="whitespace-nowrap px-5 py-3 font-medium">
+                  {[
+                    "Enquiry No.",
+                    "Company",
+                    "Contact person",
+                    "Date of Enquiry",
+                    "Status",
+                    "Submission Deadline",
+                    "",
+                  ].map((c) => (
+                    <th
+                      key={c}
+                      className="whitespace-nowrap px-5 py-3 font-medium"
+                    >
                       {c}
                     </th>
                   ))}
@@ -92,17 +117,36 @@ export function EnquiryQuotationList({ mode }) {
               </thead>
               <tbody>
                 {rows.map((e) => (
-                  <tr key={e.id} className="border-b border-ink-50 last:border-0 hover:bg-ink-50/60 dark:border-ink-800 dark:hover:bg-ink-800/60">
-                    <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs font-medium text-ink-900 dark:text-ink-50">{e.enquiryNo}</td>
-                    <td className="px-5 py-3.5 font-medium text-ink-900 dark:text-ink-50">{e.customerName}</td>
-                    <td className="px-5 py-3.5 text-ink-600 dark:text-ink-300">{e.companyName}</td>
-                    <td className="whitespace-nowrap px-5 py-3.5 text-ink-500">{formatDate(e.dateOfEnquiry)}</td>
+                  <tr
+                    key={e.id}
+                    className="border-b border-ink-50 last:border-0 hover:bg-ink-50/60 dark:border-ink-800 dark:hover:bg-ink-800/60"
+                  >
+                    <td className="whitespace-nowrap px-5 py-3.5 font-mono text-xs font-medium text-ink-900 dark:text-ink-50">
+                      {e.enquiryNo}
+                    </td>
+                    <td className="px-5 py-3.5 font-medium text-ink-900 dark:text-ink-50">
+                      {e.companyName}
+                    </td>
+                    <td className="px-5 py-3.5 text-ink-600 dark:text-ink-300">
+                      {e.contactPerson || e.customerName}
+                    </td>
+                    <td className="whitespace-nowrap px-5 py-3.5 text-ink-500">
+                      {formatDate(e.dateOfEnquiry)}
+                    </td>
                     <td className="px-5 py-3.5">
                       <StatusBadge status={e.currentStatus} />
                     </td>
-                    <td className="whitespace-nowrap px-5 py-3.5 text-ink-400">{e.submissionDeadline ? formatDate(e.submissionDeadline) : "—"}</td>
+                    <td className="whitespace-nowrap px-5 py-3.5 text-ink-400">
+                      {e.submissionDeadline
+                        ? formatDate(e.submissionDeadline)
+                        : "—"}
+                    </td>
                     <td className="px-5 py-3.5 text-right">
-                      <Button size="sm" variant="secondary" onClick={() => navigate(cfg.target(e))}>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => navigate(cfg.target(e))}
+                      >
                         {cfg.action(tab)}
                       </Button>
                     </td>

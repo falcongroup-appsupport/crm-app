@@ -3,7 +3,11 @@ import { cn } from "../../utils/cn";
 export function Toggle({ checked, onChange, label }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      {label && <span className="text-sm font-medium text-ink-700 dark:text-ink-300">{label}</span>}
+      {label && (
+        <span className="text-sm font-medium text-ink-700 dark:text-ink-300">
+          {label}
+        </span>
+      )}
       <button
         type="button"
         role="switch"

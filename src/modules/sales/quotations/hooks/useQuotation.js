@@ -14,7 +14,9 @@ export function useQuotation(id) {
       setQuotation(await quotationApi.getById(id));
     } catch (err) {
       setQuotation(null);
-      setError(err instanceof ApiError ? err.message : "Could not load the quotation.");
+      setError(
+        err instanceof ApiError ? err.message : "Could not load the quotation.",
+      );
     } finally {
       setLoading(false);
     }

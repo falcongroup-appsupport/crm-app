@@ -19,10 +19,16 @@ export function Header({ title, onMenuClick, collapsed, onToggleCollapse }) {
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
-        {collapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
+        {collapsed ? (
+          <PanelLeftOpen className="h-5 w-5" />
+        ) : (
+          <PanelLeftClose className="h-5 w-5" />
+        )}
       </button>
 
-      <h1 className="font-display text-[17px] font-semibold text-ink-950 dark:text-white">{title}</h1>
+      <h1 className="font-display text-[17px] font-semibold text-ink-950 dark:text-white">
+        {title}
+      </h1>
 
       <div className="ml-auto flex items-center gap-1.5">
         <ThemeToggle />

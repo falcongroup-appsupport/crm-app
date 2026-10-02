@@ -9,10 +9,13 @@ import { EmptyState } from "../../../shared/components/feedback/EmptyState";
 import { Pagination } from "../../../shared/components/tables/Pagination";
 import { ConfirmDialog } from "../../../shared/components/feedback/ConfirmDialog";
 import { StatusBadge } from "../components/StatusBadge";
+import { useToast } from "../../../shared/components/feedback/toast/useToast";
+import { STATUS_LABEL } from "../constants/enquiryStatus";
 import { Loader } from "../../../shared/components/feedback/Loader";
 import { useDebounce } from "../../../shared/hooks/useDebounce";
 
 export default function EnquiryListPage() {
+  const toast = useToast();
   const navigate = useNavigate();
   const {
     enquiries,
@@ -27,9 +30,8 @@ export default function EnquiryListPage() {
 
   const [query, setQuery] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [activeTasks, setActiveTasks] = useState(["pending"]);
+  const [activeTasks, setActiveTasks] = useState([]);
   const [updatingId, setUpdatingId] = useState(null);
-  const [statusError, setStatusError] = useState(null);
   const debouncedQuery = useDebounce(query, 250);
 
   const filtered = useMemo(() => {
@@ -65,7 +67,15 @@ export default function EnquiryListPage() {
     const q = debouncedQuery.trim().toLowerCase();
     if (q) {
       list = list.filter((e) =>
-        `${e.enquiryNo} ${e.customerName} ${e.companyName}`
+        [
+          e.enquiryNo,
+          e.companyName,
+          e.contactPerson,
+          e.customerName,
+          ...(e.projectInformations ?? []).map((p) => p.projectName),
+        ]
+          .filter(Boolean)
+          .join(" ")
           .toLowerCase()
           .includes(q),
       );
@@ -79,14 +89,18 @@ export default function EnquiryListPage() {
 
   const confirmStatusChange = async () => {
     const { enquiry, status } = pendingStatus;
-    setStatusError(null);
     setUpdatingId(enquiry.id);
     try {
       await changeStatus(enquiry.id, status);
       setPendingStatus(null);
+      toast.success("Status updated", {
+        description: `${enquiry.enquiryNo} is now ${STATUS_LABEL[status] ?? status}`,
+      });
     } catch (err) {
-      setStatusError(err?.message || "Could not update the status.");
       setPendingStatus(null);
+      toast.error("Couldn't update the status", {
+        description: `${enquiry.enquiryNo}: ${err?.message || "request failed"}`,
+      });
     } finally {
       setUpdatingId(null);
     }
@@ -106,12 +120,6 @@ export default function EnquiryListPage() {
           activeTasks.includes("viewAll") ? 0 : activeTasks.length
         }
       />
-
-      {statusError && (
-        <p className="rounded-lg bg-signal-50 px-4 py-2.5 text-sm text-signal-700 ring-1 ring-inset ring-signal-200 dark:bg-signal-500/10 dark:text-signal-400 dark:ring-signal-500/30">
-          {statusError}
-        </p>
-      )}
 
       {loading ? (
         <div className="rounded-xl bg-white ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
@@ -154,7 +162,7 @@ export default function EnquiryListPage() {
                 <span className="font-mono font-medium text-ink-800 dark:text-ink-100">
                   {pendingStatus.enquiry.enquiryNo}
                 </span>{" "}
-                · {pendingStatus.enquiry.customerName}
+                · {pendingStatus.enquiry.companyName}
               </p>
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge status={pendingStatus.enquiry.currentStatus} />

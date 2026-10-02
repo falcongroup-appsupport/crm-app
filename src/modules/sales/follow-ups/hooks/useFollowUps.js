@@ -18,13 +18,18 @@ export function useFollowUps(quotationId) {
       setLoading(true);
       setError(null);
       try {
-        const data = await followUpApi.getByQuotation(quotationId, { page: target, size: PAGE_SIZE });
+        const data = await followUpApi.getByQuotation(quotationId, {
+          page: target,
+          size: PAGE_SIZE,
+        });
         setItems(Array.isArray(data) ? data : (data?.content ?? []));
         setTotalPages(data?.totalPages ?? 1);
         setPage(data?.number ?? target);
       } catch (err) {
         setItems([]);
-        setError(err instanceof ApiError ? err.message : "Could not load follow-ups.");
+        setError(
+          err instanceof ApiError ? err.message : "Could not load follow-ups.",
+        );
       } finally {
         setLoading(false);
       }

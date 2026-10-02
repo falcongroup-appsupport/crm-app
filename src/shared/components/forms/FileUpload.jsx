@@ -1,6 +1,7 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Paperclip, X, FileText } from "lucide-react";
 import { Select } from "./Select";
+import { useToast } from "../feedback/toast/useToast";
 
 function formatSize(bytes = 0) {
   if (bytes < 1024) return `${bytes} B`;
@@ -16,18 +17,18 @@ function formatSize(bytes = 0) {
  */
 export function FileUpload({ files, onChange, label = "Attachments", defaultType = "OTHER", typeOptions, maxSizeMB = 0 }) {
   const inputRef = useRef(null);
-  const [error, setError] = useState(null);
+  const toast = useToast();
 
   const addFiles = (fileList) => {
     const incoming = Array.from(fileList);
     const limit = maxSizeMB * 1024 * 1024;
     const accepted = limit ? incoming.filter((f) => f.size <= limit) : incoming;
     const rejected = incoming.filter((f) => !accepted.includes(f));
-    setError(
-      rejected.length
-        ? `${rejected.map((f) => f.name).join(", ")} ${rejected.length > 1 ? "are" : "is"} over the ${maxSizeMB} MB limit and wasn't added.`
-        : null,
-    );
+    if (rejected.length) {
+      toast.warning(rejected.length > 1 ? `${rejected.length} files are too large` : "File is too large", {
+        description: `${rejected.map((f) => f.name).join(", ")} ${rejected.length > 1 ? "are" : "is"} over the ${maxSizeMB} MB limit and wasn't added.`,
+      });
+    }
     onChange([...files, ...accepted.map((file) => ({ file, fileType: defaultType }))]);
   };
 
@@ -55,7 +56,6 @@ export function FileUpload({ files, onChange, label = "Attachments", defaultType
           e.target.value = "";
         }}
       />
-      {error && <p className="mt-2 text-xs text-signal-600 dark:text-signal-400">{error}</p>}
       {files.length > 0 && (
         <ul className="mt-2 space-y-1.5">
           {files.map((f, i) => (

@@ -18,7 +18,9 @@ export function StatCard({ label, value, sub, icon: Icon, accent = false }) {
           </div>
         )}
       </div>
-      <p className="mt-3 font-display text-2xl font-semibold tabular text-ink-950 dark:text-white">{value}</p>
+      <p className="mt-3 font-display text-2xl font-semibold tabular text-ink-950 dark:text-white">
+        {value}
+      </p>
       {sub && <p className="mt-1 text-xs text-ink-400">{sub}</p>}
     </div>
   );

@@ -7,9 +7,16 @@ export default function NotFoundPage() {
       <div className="flex h-11 w-11 items-center justify-center rounded-full bg-ink-50 dark:bg-ink-800">
         <Compass className="h-5 w-5 text-ink-400" />
       </div>
-      <h2 className="mt-4 font-display text-base font-semibold text-ink-900 dark:text-white">Page not found</h2>
-      <p className="mt-1 max-w-xs text-sm text-ink-400">That route doesn't exist in Falcon Survey Engineering.</p>
-      <Link to="/" className="mt-5 text-sm font-medium text-signal-600 hover:text-signal-700">
+      <h2 className="mt-4 font-display text-base font-semibold text-ink-900 dark:text-white">
+        Page not found
+      </h2>
+      <p className="mt-1 max-w-xs text-sm text-ink-400">
+        That route doesn't exist in Falcon Survey Engineering.
+      </p>
+      <Link
+        to="/"
+        className="mt-5 text-sm font-medium text-signal-600 hover:text-signal-700"
+      >
         Back to home
       </Link>
     </div>

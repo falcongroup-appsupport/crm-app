@@ -4,7 +4,10 @@ import { SurveyBackdrop } from "../components/SurveyBackdrop";
 import { AppTile } from "../components/AppTile";
 import { LAUNCHER_APPS } from "../config/apps";
 
-const grid = { hidden: {}, show: { transition: { staggerChildren: 0.02, delayChildren: 0.1 } } };
+const grid = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.02, delayChildren: 0.1 } },
+};
 
 /**
  * Full-screen landing page (outside the sidebar layout): an app launcher,

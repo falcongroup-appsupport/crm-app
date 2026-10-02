@@ -16,7 +16,10 @@ export function useEnquiryQuotation(enquiryId) {
     try {
       const data = await quotationApi.getByEnquiry(enquiryId);
       const found = Array.isArray(data) ? data[0] : data;
-      if (!found || (typeof found === "object" && Object.keys(found).length === 0)) {
+      if (
+        !found ||
+        (typeof found === "object" && Object.keys(found).length === 0)
+      ) {
         setQuotation(null);
         setNotFound(true);
       } else {
@@ -25,7 +28,12 @@ export function useEnquiryQuotation(enquiryId) {
     } catch (err) {
       setQuotation(null);
       if (err instanceof ApiError && err.status === 404) setNotFound(true);
-      else setError(err instanceof ApiError ? err.message : "Could not load the quotation.");
+      else
+        setError(
+          err instanceof ApiError
+            ? err.message
+            : "Could not load the quotation.",
+        );
     } finally {
       setLoading(false);
     }
