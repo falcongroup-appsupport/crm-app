@@ -1,6 +1,6 @@
 import { LayoutDashboard, Inbox, BadgeDollarSign, FolderKanban, CalendarRange, MapPin, PencilRuler, Receipt, Database } from "lucide-react";
 
-export const NAV_HOME = { label: "Dashboard", icon: LayoutDashboard, to: "/" };
+export const NAV_DASHBOARD = { label: "Dashboard", icon: LayoutDashboard, to: "/dashboard" };
 
 export const NAV_GROUPS = [
   {

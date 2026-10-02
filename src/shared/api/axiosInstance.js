@@ -70,7 +70,7 @@ axiosInstance.interceptors.response.use(
       }
       if (err.response.status === 413) {
         throw new ApiError(
-          "The server rejected the upload as too large (HTTP 413). Use smaller files, or raise spring.servlet.multipart.max-file-size / max-request-size on the backend (and client_max_body_size if it sits behind nginx).",
+          "The server rejected the request as too large (HTTP 413). For multipart requests this is either the upload size limit (spring.servlet.multipart.max-file-size / max-request-size, nginx client_max_body_size) or the limit on the number of form fields per request (server.tomcat.max-part-count).",
           413,
         );
       }

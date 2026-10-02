@@ -3,13 +3,13 @@ import { NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Crosshair, ChevronDown, X } from "lucide-react";
 import { cn } from "../../shared/utils/cn";
-import { NAV_HOME, NAV_GROUPS as GROUPS } from "../../app/config/navigation";
+import { NAV_DASHBOARD, NAV_GROUPS as GROUPS } from "../../app/config/navigation";
 
 function Brand({ collapsed }) {
   return (
     <NavLink to="/" className={cn("flex items-center gap-2.5 py-5", collapsed ? "justify-center px-0" : "px-5")}>
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-signal-600">
-        <Crosshair className="h-5 w-5 text-white" strokeWidth={2.25} />
+        <Crosshair className="h-[18px] w-[18px] text-white" strokeWidth={2.25} />
       </div>
       {!collapsed && (
         <div className="leading-tight">
@@ -21,13 +21,13 @@ function Brand({ collapsed }) {
   );
 }
 
-function HomeLink({ onNavigate, collapsed }) {
+function DashboardLink({ onNavigate, collapsed }) {
   return (
     <NavLink
-      to={NAV_HOME.to}
+      to={NAV_DASHBOARD.to}
       end
       onClick={onNavigate}
-      title={collapsed ? NAV_HOME.label : undefined}
+      title={collapsed ? NAV_DASHBOARD.label : undefined}
       className={({ isActive }) =>
         cn(
           "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors",
@@ -36,8 +36,8 @@ function HomeLink({ onNavigate, collapsed }) {
         )
       }
     >
-      <NAV_HOME.icon className="h-5 w-5 shrink-0" />
-      {!collapsed && NAV_HOME.label}
+      <NAV_DASHBOARD.icon className="h-[18px] w-[18px] shrink-0" />
+      {!collapsed && NAV_DASHBOARD.label}
     </NavLink>
   );
 }
@@ -67,7 +67,7 @@ function NavGroups({ onNavigate, collapsed, onExpand }) {
                 isActiveGroup ? "bg-ink-900 text-white" : "text-ink-400 hover:bg-ink-900/60 hover:text-white",
               )}
             >
-              <group.icon className="h-5 w-5" />
+              <group.icon className="h-[18px] w-[18px]" />
             </button>
           );
         })}
@@ -85,7 +85,7 @@ function NavGroups({ onNavigate, collapsed, onExpand }) {
               onClick={() => setOpenGroup(isOpen ? null : group.label)}
               className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-300 transition-colors hover:bg-ink-900/60 hover:text-white"
             >
-              <group.icon className="h-5 w-5 shrink-0" />
+              <group.icon className="h-[18px] w-[18px] shrink-0" />
               <span className="flex-1 text-left">{group.label}</span>
               <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 transition-transform", isOpen && "rotate-180")} />
             </button>
@@ -98,7 +98,7 @@ function NavGroups({ onNavigate, collapsed, onExpand }) {
                   transition={{ duration: 0.18 }}
                   className="overflow-hidden"
                 >
-                  <div className="ml-7 space-y-0.5 border-l border-ink-800 py-1 pl-3">
+                  <div className="ml-[27px] space-y-0.5 border-l border-ink-800 py-1 pl-3">
                     {group.items.map((item) => (
                       <NavLink
                         key={item.label}
@@ -134,7 +134,7 @@ export function Sidebar({ collapsed, onExpand }) {
     >
       <Brand collapsed={collapsed} />
       <div className={cn("pb-2", collapsed ? "px-2" : "px-3")}>
-        <HomeLink collapsed={collapsed} />
+        <DashboardLink collapsed={collapsed} />
       </div>
       <NavGroups collapsed={collapsed} onExpand={onExpand} />
       {!collapsed && (
@@ -166,7 +166,7 @@ export function MobileSidebar({ open, onClose }) {
               </button>
             </div>
             <div className="px-3 pb-2">
-              <HomeLink onNavigate={onClose} collapsed={false} />
+              <DashboardLink onNavigate={onClose} collapsed={false} />
             </div>
             <NavGroups onNavigate={onClose} collapsed={false} onExpand={() => {}} />
           </motion.div>

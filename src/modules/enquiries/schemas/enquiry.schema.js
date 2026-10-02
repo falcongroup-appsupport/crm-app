@@ -85,12 +85,43 @@ export function normalizeEnquiry(data) {
           // the backend stores whatever was sent ("UAE" in the API samples) — show it in the dropdown
           country: isUae(p.country) ? UAE : str(p.country),
           emirate: str(p.emirate),
+          _saved: true,
           scopeOfServices: p.scopeOfServices?.length
-            ? p.scopeOfServices.map((sc) => ({ ...sc, activityId: str(sc.activityId), unit: str(sc.unit) || "LS", quantity: sc.quantity ?? 1, remarks: str(sc.remarks) }))
+            ? p.scopeOfServices.map((sc, j) => ({
+                ...sc,
+                activityId: str(sc.activityId),
+                unit: str(sc.unit) || "LS",
+                quantity: sc.quantity ?? 1,
+                remarks: str(sc.remarks),
+                _saved: true,
+                _origIndex: j,
+              }))
             : [emptyScope()],
         }))
       : [emptyProject()],
-    attachments: [], // existing files stay on the server; only new uploads are sent
+    // files already on the server (enquiry-level + site-visit permits)
+    existingAttachments: [...(data?.attachments ?? []), ...(data?.siteVisit?.attachments ?? [])],
+    attachments: [], // new uploads only
+  };
+}
+
+/**
+ * GET /api/enquiry/{id} currently returns scope rows with id: null, while the
+ * list endpoint returns their real ids. Until the backend fixes that, copy the
+ * ids over from the list row (matched by project id + position).
+ */
+export function fillScopeIds(record, listRow) {
+  if (!record || !listRow?.projectInformations) return record;
+  return {
+    ...record,
+    projectInformations: (record.projectInformations ?? []).map((p) => {
+      const source = listRow.projectInformations.find((lp) => lp.id === p.id);
+      if (!source) return p;
+      return {
+        ...p,
+        scopeOfServices: (p.scopeOfServices ?? []).map((s, j) => (s.id == null && source.scopeOfServices?.[j]?.id != null ? { ...s, id: source.scopeOfServices[j].id } : s)),
+      };
+    }),
   };
 }
 
@@ -245,4 +276,92 @@ export function validateEnquiry(form, { mode = "create", files = [], maxFileMB =
   }
 
   return e;
+}
+
+// ---- edit diff ------------------------------------------------------------
+// PUT /api/enquiry/{id} is a partial update: send only what changed, and for
+// nested rows send the row's `id` plus just its changed fields, e.g.
+//   projectInformations[0].id = 119
+//   projectInformations[0].projectName = DXB EXP123
+// Rows without an id are new and are sent in full.
+
+const t = (v) => str(v).trim();
+const num = (v) => (v === "" || v === null || v === undefined ? "" : String(Number(v)));
+
+const EDIT_SCALAR_KEYS = [
+  "companyName", "customerName", "customerEmail", "contactPerson", "contactNumber",
+  "projectReference", "projectLead", "remarks", "dateOfEnquiry", "submissionDeadline", "currentStatus", "projectStatus",
+];
+const PROJECT_KEYS = ["projectName", "country", "emirate"];
+const SCOPE_KEYS = ["activityId", "unit", "quantity", "remarks"];
+const SV_KEYS = ["siteVisitAssignedTo", "siteVisitDate", "contactPerson", "contactNumber", "googleMapLink"];
+
+const sameScopeValue = (key, a, b) => (key === "quantity" ? num(a) === num(b) : t(a) === t(b));
+const sameProjectValue = (key, a, b) => (key === "country" ? (isUae(a) ? UAE : t(a)) === (isUae(b) ? UAE : t(b)) : t(a) === t(b));
+
+const fullScope = (s) => ({ activityId: s.activityId, unit: s.unit, quantity: s.quantity, remarks: s.remarks });
+const fullProject = (p) => ({ projectName: p.projectName, country: p.country, emirate: p.emirate, scopeOfServices: (p.scopeOfServices ?? []).map(fullScope) });
+
+function diffSiteVisit(orig = {}, next = {}) {
+  const wasOn = Boolean(orig.siteVisitRequired);
+  const isOn = Boolean(next.siteVisitRequired);
+  if (!wasOn && !isOn) return null;
+  if (wasOn && !isOn) return { siteVisitRequired: false, gatePassRequired: false };
+  if (!wasOn && isOn) {
+    const out = { siteVisitRequired: true, gatePassRequired: Boolean(next.gatePassRequired) };
+    for (const k of SV_KEYS) if (t(next[k])) out[k] = next[k];
+    return out;
+  }
+  const out = {};
+  if (Boolean(orig.gatePassRequired) !== Boolean(next.gatePassRequired)) out.gatePassRequired = Boolean(next.gatePassRequired);
+  for (const k of SV_KEYS) if (t(orig[k]) !== t(next[k])) out[k] = next[k];
+  return Object.keys(out).length ? out : null;
+}
+
+/**
+ * Returns { changes, unidentified }. `changes` is the partial payload for the
+ * PUT. `unidentified` lists saved scope rows that were edited but have no id
+ * (the backend didn't return one) — those can't be updated safely.
+ */
+export function diffEnquiry(original, form) {
+  const changes = {};
+  const unidentified = [];
+
+  for (const key of EDIT_SCALAR_KEYS) {
+    if (t(form[key]) !== t(original[key])) changes[key] = form[key];
+  }
+
+  const sv = diffSiteVisit(original.siteVisit, form.siteVisit);
+  if (sv) changes.siteVisit = sv;
+
+  const projects = [];
+  (form.projectInformations ?? []).forEach((p, pi) => {
+    const orig = p.id != null ? (original.projectInformations ?? []).find((op) => op.id === p.id) : null;
+    if (!orig) {
+      projects.push(fullProject(p)); // new project
+      return;
+    }
+    const row = {};
+    for (const k of PROJECT_KEYS) if (!sameProjectValue(k, orig[k], p[k])) row[k] = p[k];
+
+    const scopes = [];
+    (p.scopeOfServices ?? []).forEach((s, si) => {
+      const os = s._saved ? orig.scopeOfServices?.[s._origIndex] : null;
+      if (!os) {
+        scopes.push(fullScope(s)); // new scope row
+        return;
+      }
+      const sc = {};
+      for (const k of SCOPE_KEYS) if (!sameScopeValue(k, os[k], s[k])) sc[k] = s[k];
+      if (!Object.keys(sc).length) return;
+      if (s.id == null) unidentified.push(`Project ${pi + 1}, activity row ${si + 1}`);
+      else scopes.push({ id: s.id, ...sc });
+    });
+
+    if (scopes.length) row.scopeOfServices = scopes;
+    if (Object.keys(row).length) projects.push({ id: p.id, ...row });
+  });
+  if (projects.length) changes.projectInformations = projects;
+
+  return { changes, unidentified };
 }

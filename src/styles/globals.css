@@ -31,13 +31,11 @@
 
   --color-paper: #fafaf9;
 
-  --font-display:
-    "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  --shadow-panel:
-    0 1px 2px rgba(10, 10, 10, 0.04), 0 8px 24px rgba(10, 10, 10, 0.06);
+  --shadow-panel: 0 1px 2px rgba(10, 10, 10, 0.04), 0 8px 24px rgba(10, 10, 10, 0.06);
 }
 
 @layer base {
@@ -46,9 +44,7 @@
   }
 
   html {
-    font-feature-settings:
-      "tnum" 1,
-      "cv02" 1;
+    font-feature-settings: "tnum" 1, "cv02" 1;
   }
 
   body {
@@ -101,7 +97,17 @@
   }
 }
 
+@keyframes survey-dash {
+  to {
+    stroke-dashoffset: -260;
+  }
+}
+
 @layer utilities {
+  .animate-survey-dash {
+    animation: survey-dash 14s linear infinite;
+  }
+
   .tabular {
     font-variant-numeric: tabular-nums;
   }

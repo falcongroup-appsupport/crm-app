@@ -17,7 +17,7 @@ export function Breadcrumbs() {
   return (
     <nav className="flex items-center gap-1.5 text-xs text-ink-400">
       <Link to="/" className="hover:text-ink-700 dark:hover:text-ink-200">
-        Dashboard
+        Home
       </Link>
       {segments.map((segment, i) => {
         const to = "/" + segments.slice(0, i + 1).join("/");

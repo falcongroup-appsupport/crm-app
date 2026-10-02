@@ -5,8 +5,12 @@ import { emptyScope } from "../schemas/enquiry.schema";
 
 const COLS = "grid-cols-[2fr_1fr_1fr_2fr_auto]";
 
-/** errors: the form's error map; prefix: e.g. "projects.0.scope" */
-export function ScopeOfServicesTable({ scopes, activities, onChange, errors = {}, prefix }) {
+/**
+ * errors: the form's error map; prefix: e.g. "projects.0.scope".
+ * lockSaved: on edit, rows that already exist on the server can't be removed
+ * (the API has no way to delete a nested row yet) — only newly added rows can.
+ */
+export function ScopeOfServicesTable({ scopes, activities, onChange, errors = {}, prefix, lockSaved = false }) {
   const update = (index, patch) => onChange(scopes.map((s, i) => (i === index ? { ...s, ...patch } : s)));
   const removeRow = (index) => onChange(scopes.filter((_, i) => i !== index));
   const err = (j, field) => errors[`${prefix}.${j}.${field}`];
@@ -60,7 +64,8 @@ export function ScopeOfServicesTable({ scopes, activities, onChange, errors = {}
                 <button
                   type="button"
                   onClick={() => removeRow(i)}
-                  disabled={scopes.length === 1}
+                  disabled={scopes.length === 1 || (lockSaved && scope._saved)}
+                  title={lockSaved && scope._saved ? "Saved rows can't be removed yet" : "Remove activity"}
                   className="rounded-md p-2 text-ink-400 hover:bg-signal-50 hover:text-signal-600 disabled:opacity-30 dark:hover:bg-signal-500/10"
                   aria-label="Remove activity"
                 >

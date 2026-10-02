@@ -39,6 +39,7 @@ export default function DashboardPage() {
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
+        {enquiries.length === 0 && <p className="px-5 py-8 text-center text-sm text-ink-400">No enquiries yet.</p>}
         <ul className="divide-y divide-ink-50 dark:divide-ink-800">
           {enquiries.slice(0, 6).map((e) => (
             <li key={e.id} className="flex items-center justify-between gap-4 px-5 py-3.5">

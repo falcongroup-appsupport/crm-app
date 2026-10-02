@@ -4,7 +4,7 @@ import { ScopeOfServicesTable } from "./ScopeOfServicesTable";
 import { COUNTRIES, EMIRATES } from "../constants/enquiryStatus";
 import { isUae } from "../schemas/enquiry.schema";
 
-export function ProjectInformationBlock({ index, project, activities, onChange, onRemove, removable, errors = {} }) {
+export function ProjectInformationBlock({ index, project, activities, onChange, onRemove, removable, errors = {}, lockSaved = false }) {
   const set = (patch) => onChange({ ...project, ...patch });
   const k = `projects.${index}`;
   const countries = COUNTRIES.includes(project.country) || !project.country ? COUNTRIES : [project.country, ...COUNTRIES];
@@ -70,6 +70,7 @@ export function ProjectInformationBlock({ index, project, activities, onChange, 
           onChange={(scopeOfServices) => set({ scopeOfServices })}
           errors={errors}
           prefix={`${k}.scope`}
+          lockSaved={lockSaved}
         />
       </div>
     </div>

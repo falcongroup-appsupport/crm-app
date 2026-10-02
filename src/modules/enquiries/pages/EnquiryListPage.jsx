@@ -7,12 +7,23 @@ import { EnquiryTable } from "../components/EnquiryTable";
 import { ConnectionBanner } from "../../../shared/components/feedback/ConnectionBanner";
 import { EmptyState } from "../../../shared/components/feedback/EmptyState";
 import { Pagination } from "../../../shared/components/tables/Pagination";
+import { ConfirmDialog } from "../../../shared/components/feedback/ConfirmDialog";
+import { StatusBadge } from "../components/StatusBadge";
 import { Loader } from "../../../shared/components/feedback/Loader";
 import { useDebounce } from "../../../shared/hooks/useDebounce";
 
 export default function EnquiryListPage() {
   const navigate = useNavigate();
-  const { enquiries, loading, connected, page, totalPages, goToPage, refresh, changeStatus } = useEnquiries();
+  const {
+    enquiries,
+    loading,
+    connected,
+    page,
+    totalPages,
+    goToPage,
+    refresh,
+    changeStatus,
+  } = useEnquiries();
 
   const [query, setQuery] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -29,7 +40,9 @@ export default function EnquiryListPage() {
         return activeTasks.some((task) => {
           switch (task) {
             case "pending":
-              return !["QUOTATION_DELIVERED", "SALES_ORDER_CREATED"].includes(e.currentStatus);
+              return !["QUOTATION_DELIVERED", "SALES_ORDER_CREATED"].includes(
+                e.currentStatus,
+              );
             case "underEstimation":
               return e.currentStatus === "UNDER_ESTIMATION";
             case "underApproval":
@@ -51,19 +64,29 @@ export default function EnquiryListPage() {
 
     const q = debouncedQuery.trim().toLowerCase();
     if (q) {
-      list = list.filter((e) => `${e.enquiryNo} ${e.customerName} ${e.companyName}`.toLowerCase().includes(q));
+      list = list.filter((e) =>
+        `${e.enquiryNo} ${e.customerName} ${e.companyName}`
+          .toLowerCase()
+          .includes(q),
+      );
     }
 
     return list;
   }, [enquiries, activeTasks, debouncedQuery]);
 
-  const handleStatusChange = async (enquiry, status) => {
+  // Picking a status opens a confirmation first; nothing is saved until confirmed.
+  const [pendingStatus, setPendingStatus] = useState(null); // { enquiry, status }
+
+  const confirmStatusChange = async () => {
+    const { enquiry, status } = pendingStatus;
     setStatusError(null);
     setUpdatingId(enquiry.id);
     try {
       await changeStatus(enquiry.id, status);
+      setPendingStatus(null);
     } catch (err) {
       setStatusError(err?.message || "Could not update the status.");
+      setPendingStatus(null);
     } finally {
       setUpdatingId(null);
     }
@@ -79,7 +102,9 @@ export default function EnquiryListPage() {
         onNew={() => navigate("/enquiries/new")}
         onToggleFilters={() => setFiltersOpen(true)}
         filtersOpen={filtersOpen}
-        activeFilterCount={activeTasks.includes("viewAll") ? 0 : activeTasks.length}
+        activeFilterCount={
+          activeTasks.includes("viewAll") ? 0 : activeTasks.length
+        }
       />
 
       {statusError && (
@@ -105,12 +130,43 @@ export default function EnquiryListPage() {
             enquiries={filtered}
             onRowClick={(e) => navigate(`/enquiries/${e.id}`)}
             onEdit={(e) => navigate(`/enquiries/${e.id}/edit`)}
-            onStatusChange={handleStatusChange}
+            onStatusChange={(enquiry, status) =>
+              setPendingStatus({ enquiry, status })
+            }
             updatingId={updatingId}
           />
           <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
         </>
       )}
+
+      <ConfirmDialog
+        open={Boolean(pendingStatus)}
+        tone="primary"
+        title="Change enquiry status?"
+        confirmLabel="Change status"
+        busy={
+          Boolean(pendingStatus) && updatingId === pendingStatus?.enquiry.id
+        }
+        description={
+          pendingStatus && (
+            <div className="space-y-3">
+              <p>
+                <span className="font-mono font-medium text-ink-800 dark:text-ink-100">
+                  {pendingStatus.enquiry.enquiryNo}
+                </span>{" "}
+                · {pendingStatus.enquiry.customerName}
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusBadge status={pendingStatus.enquiry.currentStatus} />
+                <span aria-hidden="true">→</span>
+                <StatusBadge status={pendingStatus.status} />
+              </div>
+            </div>
+          )
+        }
+        onConfirm={confirmStatusChange}
+        onCancel={() => setPendingStatus(null)}
+      />
 
       <EnquiryFilters
         open={filtersOpen}

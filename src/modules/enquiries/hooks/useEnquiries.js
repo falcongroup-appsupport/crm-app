@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { enquiryApi } from "../api/enquiry.api";
 import { ApiError } from "../../../shared/api/axiosInstance";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 export function useEnquiries() {
   const [enquiries, setEnquiries] = useState([]);

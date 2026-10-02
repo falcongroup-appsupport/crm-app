@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { AuthLayout } from "../layouts/AuthLayout";
 import { ProtectedRoute, authRoutes } from "../modules/auth";
+import { homeRoutes } from "../modules/home";
 import { dashboardRoutes } from "../modules/dashboard";
 import { enquiryRoutes } from "../modules/enquiries";
 import { salesRoutes } from "../modules/sales";
@@ -18,6 +19,10 @@ export function AppRouter() {
           every route below is reachable without signing in until the
           backend has a real auth endpoint. */}
       <Route element={<ProtectedRoute />}>
+        {/* Landing page: full screen, no sidebar. Per-module sign-in can wrap
+            each module's routes later without touching this page. */}
+        {homeRoutes}
+
         <Route element={<DashboardLayout />}>
           {dashboardRoutes}
           {enquiryRoutes}
