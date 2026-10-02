@@ -85,7 +85,7 @@ export default function InternalRequestsPage() {
         ) : (
           <div className="overflow-hidden rounded-xl bg-white ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[920px] text-left text-sm">
+              <table className="w-full min-w-230 text-left text-sm">
                 <thead>
                   <tr className="border-b border-ink-100 text-xs text-ink-400 dark:border-ink-800">
                     {[
@@ -139,7 +139,7 @@ export default function InternalRequestsPage() {
                       <td className="px-5 py-3.5 font-medium text-ink-900 dark:text-ink-50">
                         {r.nameOfCustomer}
                       </td>
-                      <td className="max-w-[220px] truncate px-5 py-3.5 text-ink-500">
+                      <td className="max-w-55 truncate px-5 py-3.5 text-ink-500">
                         {r.remarks || "—"}
                       </td>
                       <td className="px-5 py-3.5">

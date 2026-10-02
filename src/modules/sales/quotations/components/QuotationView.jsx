@@ -148,7 +148,7 @@ export function QuotationView({ quotation }) {
       <section className={CARD}>
         <p className={TITLE}>Items</p>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[820px] text-left text-sm">
+          <table className="w-full min-w-205 text-left text-sm">
             <thead>
               <tr className="bg-ink-50 text-xs text-ink-400 dark:bg-ink-800">
                 {[

@@ -51,7 +51,7 @@ export function EnquiryTable({
   return (
     <div className="overflow-hidden rounded-xl bg-white ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1040px] text-left text-sm">
+        <table className="w-full min-w-260 text-left text-sm">
           <thead>
             <tr className="border-b border-ink-100 text-xs text-ink-400 dark:border-ink-800">
               {columns.map((col, i) => (
@@ -108,7 +108,7 @@ export function EnquiryTable({
                       : initials(enquiry.projectLead)}
                   </div>
                 </td>
-                <td className="max-w-[220px] px-4 py-3.5">
+                <td className="max-w-55 px-4 py-3.5">
                   <p className="truncate font-medium text-ink-900 dark:text-ink-50">
                     {enquiry.companyName}
                   </p>
@@ -116,7 +116,7 @@ export function EnquiryTable({
                     {enquiry.contactPerson || enquiry.customerName}
                   </p>
                 </td>
-                <td className="max-w-[280px] px-4 py-3.5">
+                <td className="max-w-70 px-4 py-3.5">
                   {(() => {
                     const p = projectSummary(enquiry);
                     if (!p.first)

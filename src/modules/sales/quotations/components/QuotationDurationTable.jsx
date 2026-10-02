@@ -13,7 +13,7 @@ export function QuotationDurationTable({ durations, onChange }) {
   return (
     <div>
       <div className="overflow-x-auto">
-        <div className="min-w-[640px] space-y-2">
+        <div className="min-w-160 space-y-2">
           <div
             className={`grid ${COLS} gap-2 pb-1 text-xs font-medium text-ink-400`}
           >

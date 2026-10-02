@@ -28,7 +28,7 @@ export function QuotationItemsTable({ items, activities, currency, onChange }) {
   return (
     <div>
       <div className="overflow-x-auto">
-        <div className="min-w-[960px] space-y-2">
+        <div className="min-w-240 space-y-2">
           <div
             className={`grid ${COLS} gap-2 pb-1 text-xs font-medium text-ink-400`}
           >

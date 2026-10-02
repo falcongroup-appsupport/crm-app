@@ -94,7 +94,7 @@ export function StatusMenu({ status, onChange, busy = false }) {
               left: pos.left,
               transform: pos.up ? "translateY(-100%)" : undefined,
             }}
-            className="fixed z-[80] w-60 rounded-xl bg-white p-1.5 shadow-panel ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800"
+            className="fixed z-80 w-60 rounded-xl bg-white p-1.5 shadow-panel ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800"
             onClick={(e) => e.stopPropagation()}
           >
             {CURRENT_STATUSES.map((s) => (

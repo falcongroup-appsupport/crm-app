@@ -39,7 +39,7 @@ export function FollowUpHistory({ quotation }) {
         </p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] text-left text-sm">
+          <table className="w-full min-w-180 text-left text-sm">
             <thead>
               <tr className="border-b border-ink-100 text-xs text-ink-400 dark:border-ink-800">
                 {[

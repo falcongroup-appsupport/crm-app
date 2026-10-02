@@ -316,7 +316,7 @@ export function QuotationForm({ mode, enquiry, quotation }) {
                 step="any"
                 value={form.discount}
                 onChange={(e) => set({ discount: e.target.value })}
-                className="!w-32 text-right"
+                className="w-32! text-right"
               />
             </div>
             <div className="flex w-full max-w-xs justify-between border-t border-ink-100 pt-2 text-base font-semibold text-ink-950 dark:border-ink-800 dark:text-white">

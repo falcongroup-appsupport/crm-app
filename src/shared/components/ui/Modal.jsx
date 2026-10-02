@@ -14,7 +14,7 @@ export function Modal({
   return createPortal(
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-70 flex items-center justify-center p-4">
           <motion.div
             className="absolute inset-0 bg-ink-950/50 backdrop-blur-[2px]"
             initial={{ opacity: 0 }}

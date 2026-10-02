@@ -94,7 +94,7 @@ export function EnquiryQuotationList({ mode }) {
       ) : (
         <div className="overflow-hidden rounded-xl bg-white ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[860px] text-left text-sm">
+            <table className="w-full min-w-215 text-left text-sm">
               <thead>
                 <tr className="border-b border-ink-100 text-xs text-ink-400 dark:border-ink-800">
                   {[

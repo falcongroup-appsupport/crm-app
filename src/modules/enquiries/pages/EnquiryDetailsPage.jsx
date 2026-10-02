@@ -319,7 +319,7 @@ export default function EnquiryDetailsPage() {
                   </p>
                 </div>
                 <div className="overflow-x-auto rounded-lg bg-white ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
-                  <table className="w-full min-w-[560px] text-left text-sm">
+                  <table className="w-full min-w-140 text-left text-sm">
                     <thead>
                       <tr className="border-b border-ink-100 text-xs text-ink-400 dark:border-ink-800">
                         <th className="w-12 px-3 py-2 font-medium">#</th>

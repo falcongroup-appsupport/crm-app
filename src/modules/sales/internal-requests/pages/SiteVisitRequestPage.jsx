@@ -115,7 +115,7 @@ export default function SiteVisitRequestPage() {
         <div className="space-y-5 rounded-xl bg-white p-5 ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
           {!editing ? (
             <>
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%_-_3rem)/4)),1fr))] gap-4">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%-3rem)/4)),1fr))] gap-4">
                 <ReadRow
                   label="Appointment"
                   value={draft.appointment && formatDateTime(draft.appointment)}
@@ -161,7 +161,7 @@ export default function SiteVisitRequestPage() {
             </>
           ) : (
             <>
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%_-_3rem)/4)),1fr))] gap-4">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%-3rem)/4)),1fr))] gap-4">
                 <div>
                   <FieldLabel>Appointment</FieldLabel>
                   <Input
@@ -258,7 +258,7 @@ export default function SiteVisitRequestPage() {
           <p className="text-xs font-semibold tracking-wide text-ink-400">
             Based on updates from the site schedule
           </p>
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%_-_3rem)/4)),1fr))] gap-4">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%-3rem)/4)),1fr))] gap-4">
             <ReadRow label="Site visit assigned to" value={draft.assignedTo} />
             <ReadRow label="Contact number" value={draft.contactPersonNumber} />
             <div>
