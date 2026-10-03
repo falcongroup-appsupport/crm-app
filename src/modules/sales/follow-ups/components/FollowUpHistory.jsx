@@ -8,6 +8,7 @@ import { formatDateTime } from "../../../../shared/utils";
 import { useFollowUps } from "../hooks/useFollowUps";
 import { FOLLOW_UP_STATUS_LABEL } from "../constants/followUpConstants";
 import { FollowUpModal } from "./FollowUpModal";
+import { ErrorToast } from "../../../../shared/components/feedback/toast/ErrorToast";
 
 export function FollowUpHistory({ quotation }) {
   const { items, page, totalPages, loading, error, goToPage, create } =
@@ -31,8 +32,6 @@ export function FollowUpHistory({ quotation }) {
 
       {loading ? (
         <Loader label="Loading follow-ups…" className="py-8" />
-      ) : error ? (
-        <p className="text-sm text-signal-600 dark:text-signal-400">{error}</p>
       ) : items.length === 0 ? (
         <p className="py-6 text-center text-sm text-ink-400">
           No follow-ups logged yet.
@@ -103,6 +102,11 @@ export function FollowUpHistory({ quotation }) {
         </div>
       )}
 
+      <ErrorToast
+        error={error}
+        title="Couldn't load follow-ups"
+        onRetry={() => goToPage(page)}
+      />
       <FollowUpModal
         open={open}
         onClose={() => setOpen(false)}

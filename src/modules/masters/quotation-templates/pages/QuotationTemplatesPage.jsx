@@ -4,6 +4,7 @@ import { Button } from "../../../../shared/components/ui/Button";
 import { Badge } from "../../../../shared/components/ui/Badge";
 import { Toggle } from "../../../../shared/components/forms/Toggle";
 import { Loader } from "../../../../shared/components/feedback/Loader";
+import { ErrorToast } from "../../../../shared/components/feedback/toast/ErrorToast";
 import { EmptyState } from "../../../../shared/components/feedback/EmptyState";
 import { ConfirmDialog } from "../../../../shared/components/feedback/ConfirmDialog";
 import { Pagination } from "../../../../shared/components/tables/Pagination";
@@ -52,11 +53,11 @@ export default function QuotationTemplatesPage() {
         </div>
       </div>
 
-      {error && (
-        <p className="rounded-lg bg-signal-50 px-4 py-2.5 text-sm text-signal-700 ring-1 ring-inset ring-signal-200 dark:bg-signal-500/10 dark:text-signal-400 dark:ring-signal-500/30">
-          {error}
-        </p>
-      )}
+      <ErrorToast
+        error={error}
+        title="Couldn't load templates"
+        onRetry={() => goToPage(page)}
+      />
 
       {loading ? (
         <div className="rounded-xl bg-white ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">

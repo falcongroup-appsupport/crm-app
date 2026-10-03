@@ -6,7 +6,8 @@ import { ToastContext } from "./toastContext";
  * toast.success("Enquiry saved", { description: "FSEC-26-ENQ-0013" });
  * toast.error("Couldn't save", { description: err.message });
  * toast.info(...) · toast.warning(...) · toast.dismiss(id)
- * Options: description, duration (ms, 0 = stays until closed), action: { label, onClick }
+ * Options: description, duration (ms, 0 = stays until closed), action: { label, onClick },
+ *          key (dedupe: a toast with the same key isn't shown twice; toast.dismissKey(key) closes it)
  */
 export function useToast() {
   const ctx = useContext(ToastContext);

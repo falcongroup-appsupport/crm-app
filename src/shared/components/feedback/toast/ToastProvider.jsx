@@ -101,14 +101,14 @@ function ToastItem({ toast, onDismiss }) {
             iconClass,
           )}
         >
-          <Icon className="h-5 w-5" />
+          <Icon className="h-[18px] w-[18px]" />
         </span>
         <div className="min-w-0 flex-1 pt-0.5">
           <p className="text-sm font-semibold text-ink-950 dark:text-white">
             {toast.title}
           </p>
           {toast.description && (
-            <p className="mt-0.5 wrap-break-word text-sm leading-snug text-ink-500 dark:text-ink-400">
+            <p className="mt-0.5 break-words text-sm leading-snug text-ink-500 dark:text-ink-400">
               {toast.description}
             </p>
           )}
@@ -138,7 +138,7 @@ function ToastItem({ toast, onDismiss }) {
         <span
           aria-hidden="true"
           className={cn(
-            "absolute bottom-0 left-0 h-1 w-full origin-left opacity-70",
+            "absolute bottom-0 left-0 h-[3px] w-full origin-left opacity-70",
             bar,
           )}
           style={{
@@ -164,26 +164,37 @@ export function ToastProvider({ children }) {
     const id = ++nextId;
     const toast = {
       id,
+      key: options.key, // same key = same message: an open one isn't stacked again
       type,
       title,
       description: options.description,
       action: options.action,
       duration: options.duration ?? DEFAULT_DURATION[type],
     };
-    setToasts((list) => [...list, toast].slice(-MAX_VISIBLE));
+    setToasts((list) =>
+      toast.key && list.some((t) => t.key === toast.key)
+        ? list
+        : [...list, toast].slice(-MAX_VISIBLE),
+    );
     return id;
   }, []);
+
+  const dismissKey = useCallback(
+    (key) => setToasts((list) => list.filter((t) => t.key !== key)),
+    [],
+  );
 
   const api = useMemo(
     () => ({
       show,
       dismiss,
+      dismissKey,
       success: (title, o) => show("success", title, o),
       error: (title, o) => show("error", title, o),
       warning: (title, o) => show("warning", title, o),
       info: (title, o) => show("info", title, o),
     }),
-    [show, dismiss],
+    [show, dismiss, dismissKey],
   );
 
   return (
@@ -193,7 +204,7 @@ export function ToastProvider({ children }) {
         <ol
           aria-live="polite"
           aria-label="Notifications"
-          className="pointer-events-none fixed inset-x-3 top-10 z-100 flex flex-col gap-2.5 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-95"
+          className="pointer-events-none fixed inset-x-3 bottom-3 z-[100] flex flex-col gap-2.5 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[380px]"
         >
           <AnimatePresence initial={false}>
             {toasts.map((t) => (
