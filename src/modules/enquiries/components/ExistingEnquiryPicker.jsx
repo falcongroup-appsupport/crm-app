@@ -42,10 +42,7 @@ export function ExistingEnquiryPicker({
   // mount cancels the first one).
   useEffect(() => {
     if (
-      !canSearchExisting({
-        companyName: initialCompany,
-        contactPerson: initialContact,
-      })
+      !canSearchExisting({ companyName: initialCompany, contactPerson: initialContact })
     )
       return undefined;
     const t = setTimeout(
@@ -73,8 +70,8 @@ export function ExistingEnquiryPicker({
           Find the existing customer
         </p>
         <p className="mb-4 text-xs text-ink-400">
-          Search previous enquiries by company name, contact person, or both —
-          at least 2 characters.
+          Search previous enquiries by company name, contact person, or both — at least 2
+          characters.
         </p>
         <form
           onSubmit={(e) => {
@@ -131,9 +128,7 @@ export function ExistingEnquiryPicker({
       <ErrorToast
         error={status === "error" ? error : null}
         title="Customer search failed"
-        onRetry={() =>
-          search({ companyName, contactPerson }, { immediate: true })
-        }
+        onRetry={() => search({ companyName, contactPerson }, { immediate: true })}
       />
 
       {status === "done" && results.length === 0 && (
@@ -155,8 +150,8 @@ export function ExistingEnquiryPicker({
       {status === "done" && results.length > 0 && (
         <div className="space-y-2">
           <p className="px-1 text-xs font-medium text-ink-400">
-            {results.length} previous enquir{results.length === 1 ? "y" : "ies"}{" "}
-            — pick one to use its customer details
+            {results.length} previous enquir{results.length === 1 ? "y" : "ies"} — pick
+            one to use its customer details
           </p>
           {results.map((e, i) => {
             const projects = e.projectInformations ?? [];

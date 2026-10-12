@@ -2,8 +2,7 @@ import axios from "axios";
 
 // Base URL comes from VITE_API_BASE_URL (see .env). Point this at whichever
 // machine is running the Spring Boot backend from CRM_APIS.pdf.
-export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8081";
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081";
 
 const TOKEN_STORAGE_KEY = "survey-crm.auth-token";
 

@@ -34,8 +34,7 @@ export function TemplateFormModal({ open, onClose, template, onSubmit }) {
       onClose();
     } catch (err) {
       toast.error("Couldn't save the template", {
-        description:
-          err instanceof ApiError ? err.message : "Please try again.",
+        description: err instanceof ApiError ? err.message : "Please try again.",
       });
     } finally {
       setSaving(false);
@@ -80,16 +79,8 @@ export function TemplateFormModal({ open, onClose, template, onSubmit }) {
             onClick={() => inputRef.current?.click()}
             className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-ink-200 bg-ink-50 px-4 py-4 text-sm text-ink-500 transition-colors hover:border-signal-300 hover:text-signal-600 dark:border-ink-700 dark:bg-ink-800 dark:text-ink-400"
           >
-            {file ? (
-              <FileText className="h-4 w-4" />
-            ) : (
-              <Upload className="h-4 w-4" />
-            )}
-            {file
-              ? file.name
-              : isEdit
-                ? "Replace file (optional)"
-                : "Choose a file"}
+            {file ? <FileText className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
+            {file ? file.name : isEdit ? "Replace file (optional)" : "Choose a file"}
           </button>
           <input
             ref={inputRef}
@@ -97,13 +88,11 @@ export function TemplateFormModal({ open, onClose, template, onSubmit }) {
             className="hidden"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
-          {isEdit &&
-            !file &&
-            (template?.fileName || template?.originalFileName) && (
-              <p className="mt-1.5 text-xs text-ink-400">
-                Current file: {template.fileName ?? template.originalFileName}
-              </p>
-            )}
+          {isEdit && !file && (template?.fileName || template?.originalFileName) && (
+            <p className="mt-1.5 text-xs text-ink-400">
+              Current file: {template.fileName ?? template.originalFileName}
+            </p>
+          )}
         </div>
       </div>
     </Modal>

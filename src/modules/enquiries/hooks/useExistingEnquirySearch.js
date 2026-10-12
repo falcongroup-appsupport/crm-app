@@ -4,8 +4,7 @@ import { ApiError } from "../../../shared/api/axiosInstance";
 
 const MIN_CHARS = 2;
 export const canSearchExisting = ({ companyName = "", contactPerson = "" }) =>
-  companyName.trim().length >= MIN_CHARS ||
-  contactPerson.trim().length >= MIN_CHARS;
+  companyName.trim().length >= MIN_CHARS || contactPerson.trim().length >= MIN_CHARS;
 
 /**
  * Debounced POST /api/enquiry/search-existing. Call `search({ companyName, contactPerson })`

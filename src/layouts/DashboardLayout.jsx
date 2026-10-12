@@ -7,6 +7,7 @@ import { Breadcrumbs } from "./components/Breadcrumbs";
 function titleFor(pathname) {
   if (pathname.startsWith("/dashboard")) return "Dashboard";
   if (pathname.match(/^\/enquiries\/[^/]+\/quotation/)) return "Quotation";
+  if (pathname === "/quotations/new") return "New quotation";
   if (pathname.match(/^\/quotations\/[^/]+\/edit/)) return "Edit quotation";
   if (pathname.startsWith("/quotations/")) return "Quotation";
   if (pathname.startsWith("/quotations")) return "Sales quotations";

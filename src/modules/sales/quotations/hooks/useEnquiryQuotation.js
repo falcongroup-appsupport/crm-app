@@ -2,38 +2,30 @@ import { useCallback, useEffect, useState } from "react";
 import { quotationApi } from "../api/quotation.api";
 import { ApiError } from "../../../../shared/api/axiosInstance";
 
-/** Loads the quotation (if any) for an enquiry. `notFound` means none exists yet. */
-export function useEnquiryQuotation(enquiryId) {
-  const [quotation, setQuotation] = useState(null);
+/**
+ * Quotations for one enquiry. The endpoint may return one object, an array or
+ * 404 when there are none — all normalised to an array here.
+ */
+export function useEnquiryQuotations(enquiryId) {
+  const [quotations, setQuotations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [notFound, setNotFound] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
-    setNotFound(false);
     try {
       const data = await quotationApi.getByEnquiry(enquiryId);
-      const found = Array.isArray(data) ? data[0] : data;
-      if (
-        !found ||
-        (typeof found === "object" && Object.keys(found).length === 0)
-      ) {
-        setQuotation(null);
-        setNotFound(true);
-      } else {
-        setQuotation(found);
-      }
+      const list = Array.isArray(data)
+        ? data
+        : data && typeof data === "object" && Object.keys(data).length
+          ? [data]
+          : [];
+      setQuotations(list);
     } catch (err) {
-      setQuotation(null);
-      if (err instanceof ApiError && err.status === 404) setNotFound(true);
-      else
-        setError(
-          err instanceof ApiError
-            ? err.message
-            : "Could not load the quotation.",
-        );
+      setQuotations([]);
+      if (!(err instanceof ApiError && err.status === 404))
+        setError(err instanceof ApiError ? err.message : "Could not load quotations.");
     } finally {
       setLoading(false);
     }
@@ -43,5 +35,5 @@ export function useEnquiryQuotation(enquiryId) {
     load();
   }, [load]);
 
-  return { quotation, loading, error, notFound, refresh: load };
+  return { quotations, loading, error, refresh: load };
 }

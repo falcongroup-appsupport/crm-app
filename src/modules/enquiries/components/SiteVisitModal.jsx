@@ -33,13 +33,7 @@ const emptyState = {
   remarks: "",
 };
 
-export function SiteVisitModal({
-  open,
-  onClose,
-  enquiry,
-  withPermits,
-  onSubmit,
-}) {
+export function SiteVisitModal({ open, onClose, enquiry, withPermits, onSubmit }) {
   const [form, setForm] = useState(emptyState);
   const [saving, setSaving] = useState(false);
   const toast = useToast();
@@ -85,12 +79,7 @@ export function SiteVisitModal({
       subtitle={`Internal request will be sent to the concerned person's inbox · ${enquiry?.enquiryNo ?? ""}`}
       footer={
         <div className="flex justify-end gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleClose}
-            disabled={saving}
-          >
+          <Button variant="secondary" size="sm" onClick={handleClose} disabled={saving}>
             Cancel
           </Button>
           <Button size="sm" onClick={handleSubmit} disabled={saving}>
@@ -198,8 +187,7 @@ export function SiteVisitModal({
               )}
             </div>
             <p className="text-xs italic text-ink-400">
-              Document request will be automatically sent to the Document
-              Controller.
+              Document request will be automatically sent to the Document Controller.
             </p>
           </>
         )}

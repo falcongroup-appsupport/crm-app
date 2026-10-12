@@ -76,10 +76,7 @@ export default function QuotationTemplatesPage() {
             <thead>
               <tr className="border-b border-ink-100 text-xs text-ink-400 dark:border-ink-800">
                 {["Name", "File", "Status", "Created", ""].map((c) => (
-                  <th
-                    key={c}
-                    className="whitespace-nowrap px-5 py-3 font-medium"
-                  >
+                  <th key={c} className="whitespace-nowrap px-5 py-3 font-medium">
                     {c}
                   </th>
                 ))}
@@ -144,25 +141,19 @@ export default function QuotationTemplatesPage() {
         open={editing !== null}
         onClose={() => setEditing(null)}
         template={editing && editing !== "new" ? editing : null}
-        onSubmit={(data) =>
-          editing === "new" ? create(data) : update(editing.id, data)
-        }
+        onSubmit={(data) => (editing === "new" ? create(data) : update(editing.id, data))}
       />
 
       <ConfirmDialog
         open={Boolean(pendingDelete)}
         title="Delete this template?"
-        description={
-          pendingDelete ? `“${pendingDelete.name}” will be removed.` : ""
-        }
+        description={pendingDelete ? `“${pendingDelete.name}” will be removed.` : ""}
         confirmLabel="Delete"
         onCancel={() => setPendingDelete(null)}
         onConfirm={async () => {
           try {
             await remove(pendingDelete.id);
-            toast.success("Template deleted", {
-              description: pendingDelete.name,
-            });
+            toast.success("Template deleted", { description: pendingDelete.name });
           } catch (err) {
             toast.error("Couldn't delete the template", {
               description: err?.message || "Please try again.",

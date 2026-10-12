@@ -81,16 +81,7 @@ export const EMIRATES = [
   "Umm Al Quwain",
 ];
 
-export const SCOPE_UNITS = [
-  "LS",
-  "SQM",
-  "SQFT",
-  "NOS",
-  "RM",
-  "LM",
-  "HRS",
-  "DAYS",
-];
+export const SCOPE_UNITS = ["LS", "SQM", "SQFT", "NOS", "RM", "LM", "HRS", "DAYS"];
 
 export const PROJECT_LEADS = [
   "No Lead",

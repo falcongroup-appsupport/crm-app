@@ -37,8 +37,7 @@ export default function ActivityMasterPage() {
           Activity master
         </h1>
         <p className="mt-1 text-sm text-ink-400">
-          Populates the Activity Name dropdown on the enquiry's Scope of
-          Services table.
+          Populates the Activity Name dropdown on the enquiry's Scope of Services table.
         </p>
       </div>
 

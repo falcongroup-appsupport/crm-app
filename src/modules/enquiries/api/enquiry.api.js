@@ -3,12 +3,10 @@ import { axiosInstance } from "../../../shared/api/axiosInstance";
 // ---- shared field handling for POST /save and PUT /{id} ------------------------
 
 const trim = (v) => (typeof v === "string" ? v.trim() : v);
-const hasValue = (v) =>
-  v !== undefined && v !== null && String(v).trim() !== "";
+const hasValue = (v) => v !== undefined && v !== null && String(v).trim() !== "";
 
 // CRM_APIS.pdf sends "NO_LEAD" when no lead is chosen; the form shows "No Lead".
-const leadValue = (v) =>
-  !hasValue(v) || trim(v) === "No Lead" ? "NO_LEAD" : trim(v);
+const leadValue = (v) => (!hasValue(v) || trim(v) === "No Lead" ? "NO_LEAD" : trim(v));
 
 // Free-text fields (sent trimmed). On create, blanks are skipped; on update,
 // blanks are sent so a field can be cleared.
@@ -47,10 +45,7 @@ const SITE_VISIT_KEYS = [
 
 function appendSiteVisit(fd, sv) {
   if (!sv?.siteVisitRequired) return;
-  fd.append(
-    "siteVisit.siteVisitRequired",
-    String(Boolean(sv.siteVisitRequired)),
-  );
+  fd.append("siteVisit.siteVisitRequired", String(Boolean(sv.siteVisitRequired)));
   fd.append(
     "siteVisit.gatePassRequired",
     String(Boolean(sv.siteVisitRequired && sv.gatePassRequired)),
@@ -75,13 +70,9 @@ function appendProjects(fd, projects, { withIds }) {
     (project.scopeOfServices || []).forEach((scope, j) => {
       const sb = `${base}.scopeOfServices[${j}]`;
       if (withIds && hasValue(scope.id)) fd.append(`${sb}.id`, scope.id);
-      if (hasValue(scope.activityId))
-        fd.append(`${sb}.activityId`, scope.activityId);
+      if (hasValue(scope.activityId)) fd.append(`${sb}.activityId`, scope.activityId);
       fd.append(`${sb}.unit`, trim(scope.unit ?? ""));
-      fd.append(
-        `${sb}.quantity`,
-        hasValue(scope.quantity) ? Number(scope.quantity) : "",
-      );
+      fd.append(`${sb}.quantity`, hasValue(scope.quantity) ? Number(scope.quantity) : "");
       optional(`${sb}.remarks`, scope.remarks);
     });
   });
@@ -142,8 +133,7 @@ export function buildEnquiryUpdateFormData(enquiry) {
     Object.prototype.hasOwnProperty.call(obj, key) && obj[key] !== undefined;
 
   for (const key of TEXT_KEYS) {
-    if (has(enquiry, key) && enquiry[key] !== null)
-      fd.append(key, trim(enquiry[key]));
+    if (has(enquiry, key) && enquiry[key] !== null) fd.append(key, trim(enquiry[key]));
   }
   if (has(enquiry, "contactPerson") && enquiry.contactPerson !== null)
     fd.append("customerName", customerNameOf(enquiry));
@@ -169,8 +159,7 @@ export function buildEnquiryUpdateFormData(enquiry) {
     const base = `projectInformations[${i}]`;
     if (hasValue(project.id)) fd.append(`${base}.id`, project.id);
     for (const key of ["projectName", "country", "emirate"]) {
-      if (has(project, key))
-        fd.append(`${base}.${key}`, trim(project[key] ?? ""));
+      if (has(project, key)) fd.append(`${base}.${key}`, trim(project[key] ?? ""));
     }
     (project.scopeOfServices || []).forEach((scope, j) => {
       const sb = `${base}.scopeOfServices[${j}]`;
@@ -183,8 +172,7 @@ export function buildEnquiryUpdateFormData(enquiry) {
           `${sb}.quantity`,
           hasValue(scope.quantity) ? Number(scope.quantity) : "",
         );
-      if (has(scope, "remarks"))
-        fd.append(`${sb}.remarks`, trim(scope.remarks ?? ""));
+      if (has(scope, "remarks")) fd.append(`${sb}.remarks`, trim(scope.remarks ?? ""));
     });
   });
 
@@ -205,10 +193,7 @@ export function countParts(formData) {
 
 export const enquiryApi = {
   save(enquiry) {
-    return axiosInstance.post(
-      "/api/enquiry/save",
-      buildEnquiryFormData(enquiry),
-    );
+    return axiosInstance.post("/api/enquiry/save", buildEnquiryFormData(enquiry));
   },
   /** Enquiries matching a company name and/or contact person (either may be blank). */
   searchExisting({ companyName = "", contactPerson = "" }) {
@@ -224,10 +209,7 @@ export const enquiryApi = {
     return axiosInstance.get("/api/enquiry", { params: { page, size } });
   },
   update(id, enquiry) {
-    return axiosInstance.put(
-      `/api/enquiry/${id}`,
-      buildEnquiryUpdateFormData(enquiry),
-    );
+    return axiosInstance.put(`/api/enquiry/${id}`, buildEnquiryUpdateFormData(enquiry));
   },
   remove(id) {
     return axiosInstance.delete(`/api/enquiry/${id}`);

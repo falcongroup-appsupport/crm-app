@@ -25,9 +25,7 @@ export function ScopeOfServicesTable({
 
   return (
     <div>
-      <div
-        className={`grid ${COLS} gap-2 pb-1.5 text-xs font-medium text-ink-400`}
-      >
+      <div className={`grid ${COLS} gap-2 pb-1.5 text-xs font-medium text-ink-400`}>
         <span>Activity name *</span>
         <span>Unit *</span>
         <span>Quantity *</span>
@@ -62,10 +60,7 @@ export function ScopeOfServicesTable({
                 >
                   <option value="">Select activity…</option>
                   {activities.map((a) => (
-                    <option
-                      key={a.activityId ?? a.id}
-                      value={a.activityId ?? a.id}
-                    >
+                    <option key={a.activityId ?? a.id} value={a.activityId ?? a.id}>
                       {a.activityName}
                     </option>
                   ))}

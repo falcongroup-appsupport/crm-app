@@ -15,7 +15,14 @@ function formatSize(bytes = 0) {
  * `maxSizeMB` (0 = no client-side limit) rejects oversized files up front
  * instead of waiting for the server to answer 413.
  */
-export function FileUpload({ files, onChange, label = "Attachments", defaultType = "OTHER", typeOptions, maxSizeMB = 0 }) {
+export function FileUpload({
+  files,
+  onChange,
+  label = "Attachments",
+  defaultType = "OTHER",
+  typeOptions,
+  maxSizeMB = 0,
+}) {
   const inputRef = useRef(null);
   const toast = useToast();
 
@@ -25,15 +32,21 @@ export function FileUpload({ files, onChange, label = "Attachments", defaultType
     const accepted = limit ? incoming.filter((f) => f.size <= limit) : incoming;
     const rejected = incoming.filter((f) => !accepted.includes(f));
     if (rejected.length) {
-      toast.warning(rejected.length > 1 ? `${rejected.length} files are too large` : "File is too large", {
-        description: `${rejected.map((f) => f.name).join(", ")} ${rejected.length > 1 ? "are" : "is"} over the ${maxSizeMB} MB limit and wasn't added.`,
-      });
+      toast.warning(
+        rejected.length > 1
+          ? `${rejected.length} files are too large`
+          : "File is too large",
+        {
+          description: `${rejected.map((f) => f.name).join(", ")} ${rejected.length > 1 ? "are" : "is"} over the ${maxSizeMB} MB limit and wasn't added.`,
+        },
+      );
     }
     onChange([...files, ...accepted.map((file) => ({ file, fileType: defaultType }))]);
   };
 
   const removeAt = (index) => onChange(files.filter((_, i) => i !== index));
-  const setType = (index, fileType) => onChange(files.map((f, i) => (i === index ? { ...f, fileType } : f)));
+  const setType = (index, fileType) =>
+    onChange(files.map((f, i) => (i === index ? { ...f, fileType } : f)));
 
   return (
     <div>
@@ -59,21 +72,37 @@ export function FileUpload({ files, onChange, label = "Attachments", defaultType
       {files.length > 0 && (
         <ul className="mt-2 space-y-1.5">
           {files.map((f, i) => (
-            <li key={i} className="flex items-center justify-between gap-3 rounded-lg bg-ink-50 px-3 py-2 text-sm dark:bg-ink-800">
+            <li
+              key={i}
+              className="flex items-center justify-between gap-3 rounded-lg bg-ink-50 px-3 py-2 text-sm dark:bg-ink-800"
+            >
               <span className="flex min-w-0 items-center gap-2 text-ink-700 dark:text-ink-300">
                 <FileText className="h-4 w-4 shrink-0 text-ink-400" />
                 <span className="truncate">{f.file?.name ?? f.fileName}</span>
-                {f.file && <span className="shrink-0 text-xs text-ink-400">{formatSize(f.file.size)}</span>}
+                {f.file && (
+                  <span className="shrink-0 text-xs text-ink-400">
+                    {formatSize(f.file.size)}
+                  </span>
+                )}
               </span>
               <span className="flex shrink-0 items-center gap-2">
                 {typeOptions && (
-                  <Select value={f.fileType} onChange={(e) => setType(i, e.target.value)} className="!py-1 !text-xs">
+                  <Select
+                    value={f.fileType}
+                    onChange={(e) => setType(i, e.target.value)}
+                    className="!py-1 !text-xs"
+                  >
                     {typeOptions.map((t) => (
                       <option key={t}>{t}</option>
                     ))}
                   </Select>
                 )}
-                <button type="button" onClick={() => removeAt(i)} className="text-ink-400 hover:text-signal-600" aria-label="Remove file">
+                <button
+                  type="button"
+                  onClick={() => removeAt(i)}
+                  className="text-ink-400 hover:text-signal-600"
+                  aria-label="Remove file"
+                >
                   <X className="h-4 w-4" />
                 </button>
               </span>

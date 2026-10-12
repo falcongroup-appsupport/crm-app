@@ -15,9 +15,7 @@ export const quotationTemplateApi = {
     return axiosInstance.get(`/api/quotation-templates/${id}`);
   },
   getAll({ page = 0, size = 20 } = {}) {
-    return axiosInstance.get("/api/quotation-templates", {
-      params: { page, size },
-    });
+    return axiosInstance.get("/api/quotation-templates", { params: { page, size } });
   },
   getActive({ page = 0, size = 20 } = {}) {
     return axiosInstance.get("/api/quotation-templates/active", {
@@ -25,10 +23,7 @@ export const quotationTemplateApi = {
     });
   },
   update(id, data) {
-    return axiosInstance.put(
-      `/api/quotation-templates/${id}`,
-      toFormData(data),
-    );
+    return axiosInstance.put(`/api/quotation-templates/${id}`, toFormData(data));
   },
   remove(id) {
     return axiosInstance.delete(`/api/quotation-templates/${id}`);

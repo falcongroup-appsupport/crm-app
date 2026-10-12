@@ -26,8 +26,7 @@ const MODES = {
       tab === "issued"
         ? ISSUED.includes(e.currentStatus)
         : !ISSUED.includes(e.currentStatus),
-    action: (tab) =>
-      tab === "issued" ? "View quotation" : "Create / open quotation",
+    action: (tab) => (tab === "issued" ? "View quotation" : "Create / open quotation"),
     target: (e) => `/enquiries/${e.id}/quotation`,
     empty: "No enquiries here yet.",
   },
@@ -94,7 +93,7 @@ export function EnquiryQuotationList({ mode }) {
       ) : (
         <div className="overflow-hidden rounded-xl bg-white ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-215 text-left text-sm">
+            <table className="w-full min-w-[860px] text-left text-sm">
               <thead>
                 <tr className="border-b border-ink-100 text-xs text-ink-400 dark:border-ink-800">
                   {[
@@ -106,10 +105,7 @@ export function EnquiryQuotationList({ mode }) {
                     "Submission Deadline",
                     "",
                   ].map((c) => (
-                    <th
-                      key={c}
-                      className="whitespace-nowrap px-5 py-3 font-medium"
-                    >
+                    <th key={c} className="whitespace-nowrap px-5 py-3 font-medium">
                       {c}
                     </th>
                   ))}
@@ -137,9 +133,7 @@ export function EnquiryQuotationList({ mode }) {
                       <StatusBadge status={e.currentStatus} />
                     </td>
                     <td className="whitespace-nowrap px-5 py-3.5 text-ink-400">
-                      {e.submissionDeadline
-                        ? formatDate(e.submissionDeadline)
-                        : "—"}
+                      {e.submissionDeadline ? formatDate(e.submissionDeadline) : "—"}
                     </td>
                     <td className="px-5 py-3.5 text-right">
                       <Button

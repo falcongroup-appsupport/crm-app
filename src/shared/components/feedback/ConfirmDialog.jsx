@@ -21,7 +21,7 @@ export function ConfirmDialog({
   return createPortal(
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center px-4">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
           <motion.div
             className="absolute inset-0 bg-ink-950/40"
             initial={{ opacity: 0 }}
@@ -54,12 +54,7 @@ export function ConfirmDialog({
               {description}
             </div>
             <div className="mt-6 flex justify-end gap-2">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={onCancel}
-                disabled={busy}
-              >
+              <Button variant="secondary" size="sm" onClick={onCancel} disabled={busy}>
                 Cancel
               </Button>
               <Button

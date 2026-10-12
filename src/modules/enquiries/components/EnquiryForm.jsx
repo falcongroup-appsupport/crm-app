@@ -135,8 +135,7 @@ export function EnquiryForm({ mode, id }) {
   const navigate = useNavigate();
   const toast = useToast();
   const { activities } = useActivities();
-  const { enquiries, createEnquiry, updateEnquiry, connected, refresh } =
-    useEnquiries();
+  const { enquiries, createEnquiry, updateEnquiry, connected, refresh } = useEnquiries();
   const {
     enquiry,
     loading,
@@ -194,11 +193,7 @@ export function EnquiryForm({ mode, id }) {
   const addProject = () =>
     set({ projectInformations: [...form.projectInformations, emptyProject()] });
   const removeProject = (index) =>
-    set({
-      projectInformations: form.projectInformations.filter(
-        (_, i) => i !== index,
-      ),
-    });
+    set({ projectInformations: form.projectInformations.filter((_, i) => i !== index) });
 
   const resetForm = (next = emptyEnquiry()) => {
     setForm(next);
@@ -224,10 +219,7 @@ export function EnquiryForm({ mode, id }) {
   // ---- existing customer ----------------------------------------------------
 
   const showExisting = () => {
-    setPickerSeed({
-      companyName: form.companyName,
-      contactPerson: form.contactPerson,
-    });
+    setPickerSeed({ companyName: form.companyName, contactPerson: form.contactPerson });
     setSource(null);
     setCustomerMode("existing");
   };
@@ -254,8 +246,7 @@ export function EnquiryForm({ mode, id }) {
       });
     } catch (err) {
       toast.error("Couldn't load that customer", {
-        description:
-          err instanceof ApiError ? err.message : "Please try again.",
+        description: err instanceof ApiError ? err.message : "Please try again.",
       });
     } finally {
       setSelectingId(null);
@@ -293,9 +284,7 @@ export function EnquiryForm({ mode, id }) {
     if (Object.keys(found).length) {
       const count = Object.keys(found).length;
       toast.warning(
-        count === 1
-          ? "1 field needs attention"
-          : `${count} fields need attention`,
+        count === 1 ? "1 field needs attention" : `${count} fields need attention`,
         { description: "They're highlighted in red on the form." },
       );
       // wait for the red rings to render, then bring the first one into view
@@ -339,8 +328,7 @@ export function EnquiryForm({ mode, id }) {
               : { enquiryType: "NEW" }),
           };
     const hasUpdate =
-      mode === "edit" &&
-      (Object.keys(changes).length > 0 || allFiles.length > 0);
+      mode === "edit" && (Object.keys(changes).length > 0 || allFiles.length > 0);
 
     if (mode === "edit" && !hasUpdate && removedAttachmentIds.length === 0) {
       toast.info("No changes to save");
@@ -357,8 +345,8 @@ export function EnquiryForm({ mode, id }) {
             await attachmentApi.remove(attachmentId);
           } catch (err) {
             const name =
-              form.existingAttachments.find((a) => a.id === attachmentId)
-                ?.fileName ?? `#${attachmentId}`;
+              form.existingAttachments.find((a) => a.id === attachmentId)?.fileName ??
+              `#${attachmentId}`;
             throw new ApiError(
               `${hasUpdate ? "Changes were saved, but " : ""}"${name}" couldn't be removed: ${err?.message || "request failed"}`,
               err?.status ?? 0,
@@ -398,12 +386,9 @@ export function EnquiryForm({ mode, id }) {
         });
       } else {
         toast.error(
-          mode === "edit"
-            ? "Couldn't save changes"
-            : "Couldn't register the enquiry",
+          mode === "edit" ? "Couldn't save changes" : "Couldn't register the enquiry",
           {
-            description:
-              err instanceof ApiError ? err.message : "Please try again.",
+            description: err instanceof ApiError ? err.message : "Please try again.",
           },
         );
       }
@@ -439,8 +424,7 @@ export function EnquiryForm({ mode, id }) {
 
   const invalid = (key) => Boolean(errors[key]);
   const companyLocked = mode === "create" && Boolean(source);
-  const showPicker =
-    mode === "create" && customerMode === "existing" && !source;
+  const showPicker = mode === "create" && customerMode === "existing" && !source;
 
   return (
     <div className="space-y-6 pb-16">
@@ -457,9 +441,7 @@ export function EnquiryForm({ mode, id }) {
           <h1 className="font-display text-xl font-semibold text-ink-950 dark:text-white">
             {mode === "edit" ? "Edit enquiry" : "Enquiry registration"}
           </h1>
-          <p
-            className={`text-sm text-ink-400 ${mode === "edit" ? "font-mono" : ""}`}
-          >
+          <p className={`text-sm text-ink-400 ${mode === "edit" ? "font-mono" : ""}`}>
             {mode === "edit"
               ? form.enquiryNo
               : customerMode === "existing"
@@ -534,9 +516,7 @@ export function EnquiryForm({ mode, id }) {
                     <Input
                       value={form.companyName}
                       aria-invalid={invalid("companyName")}
-                      onChange={(e) =>
-                        onCustomerChange({ companyName: e.target.value })
-                      }
+                      onChange={(e) => onCustomerChange({ companyName: e.target.value })}
                       placeholder="Falcon Group"
                     />
                   )}
@@ -547,9 +527,7 @@ export function EnquiryForm({ mode, id }) {
                   <Input
                     value={form.contactPerson}
                     aria-invalid={invalid("contactPerson")}
-                    onChange={(e) =>
-                      onCustomerChange({ contactPerson: e.target.value })
-                    }
+                    onChange={(e) => onCustomerChange({ contactPerson: e.target.value })}
                   />
                   <FieldError>{errors.contactPerson}</FieldError>
                 </div>
@@ -590,8 +568,8 @@ export function EnquiryForm({ mode, id }) {
                         .slice(0, 3)
                         .map((m) => m.enquiryNo)
                         .join(", ")}
-                      {previousMatches.length > 3 ? "…" : ""}). Use their saved
-                      customer details?
+                      {previousMatches.length > 3 ? "…" : ""}). Use their saved customer
+                      details?
                     </span>
                   </span>
                   <Button
@@ -668,9 +646,7 @@ export function EnquiryForm({ mode, id }) {
                     min={form.dateOfEnquiry || undefined}
                     value={form.submissionDeadline || ""}
                     aria-invalid={invalid("submissionDeadline")}
-                    onChange={(e) =>
-                      set({ submissionDeadline: e.target.value })
-                    }
+                    onChange={(e) => set({ submissionDeadline: e.target.value })}
                   />
                   <FieldError>{errors.submissionDeadline}</FieldError>
                 </div>
@@ -685,9 +661,7 @@ export function EnquiryForm({ mode, id }) {
                   <FieldError>{errors.projectReference}</FieldError>
                 </div>
                 <div>
-                  <FieldLabel required={mode === "create"}>
-                    Project status
-                  </FieldLabel>
+                  <FieldLabel required={mode === "create"}>Project status</FieldLabel>
                   <Select
                     value={form.projectStatus || ""}
                     aria-invalid={invalid("projectStatus")}
@@ -817,11 +791,7 @@ export function EnquiryForm({ mode, id }) {
               )}
               <Button type="submit" disabled={saving}>
                 <Save className="h-4 w-4" />
-                {saving
-                  ? "Saving…"
-                  : mode === "edit"
-                    ? "Save changes"
-                    : "Submit enquiry"}
+                {saving ? "Saving…" : mode === "edit" ? "Save changes" : "Submit enquiry"}
               </Button>
             </div>
           </form>

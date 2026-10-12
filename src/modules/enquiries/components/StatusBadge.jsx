@@ -17,10 +17,7 @@ export function StatusBadge({ status, className }) {
     );
   }
   return (
-    <Badge
-      tone={STATUS_STYLES[status] ?? STATUS_STYLES.SELECT}
-      className={className}
-    >
+    <Badge tone={STATUS_STYLES[status] ?? STATUS_STYLES.SELECT} className={className}>
       {STATUS_LABEL[status] ?? status}
     </Badge>
   );

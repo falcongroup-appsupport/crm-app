@@ -58,8 +58,7 @@ export function AttachmentList({
   const toast = useToast();
   const [preview, setPreview] = useState(null); // null | { att, url, kind }
 
-  if (!attachments.length)
-    return <p className="text-sm text-ink-400">{emptyText}</p>;
+  if (!attachments.length) return <p className="text-sm text-ink-400">{emptyText}</p>;
 
   const saveBlob = (url, name) => {
     const a = document.createElement("a");
@@ -146,9 +145,7 @@ export function AttachmentList({
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-1">
-                {busy && (
-                  <Loader2 className="h-4 w-4 animate-spin text-ink-400" />
-                )}
+                {busy && <Loader2 className="h-4 w-4 animate-spin text-ink-400" />}
                 {PREVIEWABLE.includes(ext(att.fileName)) && (
                   <button
                     type="button"
@@ -183,9 +180,7 @@ export function AttachmentList({
                     )}
                     title={removed ? "Keep this file" : "Remove this file"}
                     aria-label={
-                      removed
-                        ? `Keep ${att.fileName}`
-                        : `Remove ${att.fileName}`
+                      removed ? `Keep ${att.fileName}` : `Remove ${att.fileName}`
                     }
                   >
                     {removed ? (
@@ -220,9 +215,7 @@ export function AttachmentList({
             </Button>
             <Button
               size="sm"
-              onClick={() =>
-                preview && saveBlob(preview.url, preview.att.fileName)
-              }
+              onClick={() => preview && saveBlob(preview.url, preview.att.fileName)}
             >
               <Download className="h-4 w-4" />
               Download

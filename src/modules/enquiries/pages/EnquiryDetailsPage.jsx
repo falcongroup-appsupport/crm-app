@@ -113,8 +113,7 @@ export default function EnquiryDetailsPage() {
     }
     if (pendingAction === "SEND_ESTIMATION") {
       toast.info("Estimation isn't built yet", {
-        description:
-          "It will open here once that screen and API are available.",
+        description: "It will open here once that screen and API are available.",
       });
       setPendingAction("");
       return;
@@ -192,8 +191,7 @@ export default function EnquiryDetailsPage() {
               )}
             </div>
             <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">
-              {enquiry.companyName} ·{" "}
-              {enquiry.contactPerson || enquiry.customerName}
+              {enquiry.companyName} · {enquiry.contactPerson || enquiry.customerName}
             </p>
             <p className="mt-0.5 text-xs text-ink-400">
               Created {formatDateTime(enquiry.createdAt)}
@@ -230,10 +228,7 @@ export default function EnquiryDetailsPage() {
           </ReadField>
           <ReadField label="Email">
             {enquiry.customerEmail ? (
-              <a
-                href={`mailto:${enquiry.customerEmail}`}
-                className={`${LINK} break-all`}
-              >
+              <a href={`mailto:${enquiry.customerEmail}`} className={`${LINK} break-all`}>
                 <Mail className="h-3.5 w-3.5 shrink-0" />
                 {enquiry.customerEmail}
               </a>
@@ -249,10 +244,7 @@ export default function EnquiryDetailsPage() {
         <p className={TITLE}>Enquiry details</p>
         <div className={GRID}>
           <ReadField label="Enquiry number" value={enquiry.enquiryNo} />
-          <ReadField
-            label="Enquiry date"
-            value={formatDate(enquiry.dateOfEnquiry)}
-          />
+          <ReadField label="Enquiry date" value={formatDate(enquiry.dateOfEnquiry)} />
           <ReadField label="Submission deadline">
             {enquiry.submissionDeadline ? (
               <>
@@ -263,24 +255,15 @@ export default function EnquiryDetailsPage() {
               "—"
             )}
           </ReadField>
-          <ReadField
-            label="Enquiry lead"
-            value={leadLabel(enquiry.projectLead)}
-          />
-          <ReadField
-            label="Project reference"
-            value={enquiry.projectReference}
-          />
+          <ReadField label="Enquiry lead" value={leadLabel(enquiry.projectLead)} />
+          <ReadField label="Project reference" value={enquiry.projectReference} />
           <ReadField label="Project status">
             <ProjectStatusPill status={enquiry.projectStatus} />
           </ReadField>
           <ReadField label="Current status">
             <StatusBadge status={enquiry.currentStatus} />
           </ReadField>
-          <ReadField
-            label="Registered"
-            value={formatDateTime(enquiry.createdAt)}
-          />
+          <ReadField label="Registered" value={formatDateTime(enquiry.createdAt)} />
         </div>
       </section>
 
@@ -291,8 +274,8 @@ export default function EnquiryDetailsPage() {
             Project information
           </p>
           <p className="text-xs text-ink-400">
-            {projects.length} project{projects.length === 1 ? "" : "s"} ·{" "}
-            {activityCount} activit{activityCount === 1 ? "y" : "ies"}
+            {projects.length} project{projects.length === 1 ? "" : "s"} · {activityCount}{" "}
+            activit{activityCount === 1 ? "y" : "ies"}
           </p>
         </div>
         {projects.length === 0 ? (
@@ -313,21 +296,17 @@ export default function EnquiryDetailsPage() {
                   </p>
                   <p className="flex items-center gap-1.5 text-xs text-ink-500 dark:text-ink-400">
                     <MapPin className="h-3.5 w-3.5" />
-                    {[project.emirate, project.country]
-                      .filter(Boolean)
-                      .join(", ") || "—"}
+                    {[project.emirate, project.country].filter(Boolean).join(", ") || "—"}
                   </p>
                 </div>
                 <div className="overflow-x-auto rounded-lg bg-white ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
-                  <table className="w-full min-w-140 text-left text-sm">
+                  <table className="w-full min-w-[560px] text-left text-sm">
                     <thead>
                       <tr className="border-b border-ink-100 text-xs text-ink-400 dark:border-ink-800">
                         <th className="w-12 px-3 py-2 font-medium">#</th>
                         <th className="px-3 py-2 font-medium">Activity</th>
                         <th className="px-3 py-2 font-medium">Unit</th>
-                        <th className="px-3 py-2 text-right font-medium">
-                          Quantity
-                        </th>
+                        <th className="px-3 py-2 text-right font-medium">Quantity</th>
                         <th className="px-3 py-2 font-medium">Remarks</th>
                       </tr>
                     </thead>
@@ -339,8 +318,7 @@ export default function EnquiryDetailsPage() {
                         >
                           <td className="px-3 py-2 text-ink-400">{j + 1}</td>
                           <td className="px-3 py-2 font-medium text-ink-900 dark:text-ink-50">
-                            {scope.activityName ||
-                              `Activity #${scope.activityId}`}
+                            {scope.activityName || `Activity #${scope.activityId}`}
                           </td>
                           <td className="px-3 py-2 text-ink-600 dark:text-ink-300">
                             {scope.unit}

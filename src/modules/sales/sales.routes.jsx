@@ -5,6 +5,7 @@ import QuotationListPage from "./quotations/pages/QuotationListPage";
 import EnquiryQuotationPage from "./quotations/pages/EnquiryQuotationPage";
 import QuotationDetailsPage from "./quotations/pages/QuotationDetailsPage";
 import EditQuotationPage from "./quotations/pages/EditQuotationPage";
+import CreateQuotationPage from "./quotations/pages/CreateQuotationPage";
 import FollowUpListPage from "./follow-ups/pages/FollowUpListPage";
 
 // orders/ and direct-sales/ are real sub-feature folders with no screens yet —
@@ -15,6 +16,7 @@ export const salesRoutes = (
     <Route path="requests/:id" element={<SiteVisitRequestPage />} />
 
     <Route path="quotations" element={<QuotationListPage />} />
+    <Route path="quotations/new" element={<CreateQuotationPage />} />
     <Route path="quotations/:id" element={<QuotationDetailsPage />} />
     <Route path="quotations/:id/edit" element={<EditQuotationPage />} />
     <Route path="enquiries/:id/quotation" element={<EnquiryQuotationPage />} />

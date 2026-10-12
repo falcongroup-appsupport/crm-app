@@ -34,9 +34,7 @@ export function SiteVisitFormSection({
           <FieldLabel>Site visit</FieldLabel>
           <Select
             value={required ? "REQUIRED" : "SELECT"}
-            onChange={(e) =>
-              set({ siteVisitRequired: e.target.value === "REQUIRED" })
-            }
+            onChange={(e) => set({ siteVisitRequired: e.target.value === "REQUIRED" })}
           >
             <option value="SELECT">Not required</option>
             <option value="REQUIRED">Required</option>
@@ -48,9 +46,7 @@ export function SiteVisitFormSection({
               <FieldLabel>Gate pass</FieldLabel>
               <Select
                 value={sv.gatePassRequired ? "REQUIRED" : "SELECT"}
-                onChange={(e) =>
-                  set({ gatePassRequired: e.target.value === "REQUIRED" })
-                }
+                onChange={(e) => set({ gatePassRequired: e.target.value === "REQUIRED" })}
               >
                 <option value="SELECT">Not required</option>
                 <option value="REQUIRED">Required</option>

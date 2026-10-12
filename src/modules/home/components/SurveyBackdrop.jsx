@@ -59,13 +59,7 @@ function contour(cx, cy, r, seed, level) {
 function hill({ cx, cy, rings, start, step, seed, base, interval }) {
   return Array.from({ length: rings }, (_, i) => {
     const level = rings - 1 - i; // outer ring = lowest elevation
-    const { d, label } = contour(
-      cx,
-      cy,
-      start + step * (rings - 1 - i),
-      seed,
-      i,
-    );
+    const { d, label } = contour(cx, cy, start + step * (rings - 1 - i), seed, i);
     return {
       d,
       label,
@@ -148,8 +142,7 @@ const FLIGHT = (() => {
     d += ` L${to} ${y}`;
     for (let x = Math.min(from, to) + 22; x < Math.max(from, to); x += 44)
       shots.push([x, y]);
-    if (i < passes - 1)
-      d += ` A${r} ${r} 0 0 ${toRight ? 1 : 0} ${to} ${y + step}`;
+    if (i < passes - 1) d += ` A${r} ${r} 0 0 ${toRight ? 1 : 0} ${to} ${y + step}`;
   }
   return {
     d,
@@ -205,12 +198,7 @@ export function SurveyBackdrop() {
         className="h-full w-full text-ink-100 dark:text-ink-700"
       >
         <defs>
-          <pattern
-            id="fse-grid"
-            width="80"
-            height="80"
-            patternUnits="userSpaceOnUse"
-          >
+          <pattern id="fse-grid" width="80" height="80" patternUnits="userSpaceOnUse">
             <path
               d="M80 0H0V80"
               fill="none"
@@ -218,12 +206,7 @@ export function SurveyBackdrop() {
               strokeWidth=".5"
               opacity=".35"
             />
-            <path
-              d="M0 -5V5M-5 0H5"
-              stroke="currentColor"
-              strokeWidth="1"
-              opacity=".9"
-            />
+            <path d="M0 -5V5M-5 0H5" stroke="currentColor" strokeWidth="1" opacity=".9" />
           </pattern>
         </defs>
 
@@ -285,32 +268,14 @@ export function SurveyBackdrop() {
             className="animate-survey-dash"
           />
           {FLIGHT.shots.map(([x, y], i) => (
-            <circle
-              key={i}
-              cx={x}
-              cy={y}
-              r="1.8"
-              fill="currentColor"
-              opacity=".45"
-            />
+            <circle key={i} cx={x} cy={y} r="1.8" fill="currentColor" opacity=".45" />
           ))}
           <g
             transform={`translate(${FLIGHT.box.x + FLIGHT.box.w - 12} ${FLIGHT.box.y - 2})`}
             opacity=".7"
           >
-            <path
-              d="M-7 -7 7 7M7 -7-7 7"
-              stroke="currentColor"
-              strokeWidth="1.6"
-            />
-            <rect
-              x="-3"
-              y="-3"
-              width="6"
-              height="6"
-              rx="1.2"
-              fill="currentColor"
-            />
+            <path d="M-7 -7 7 7M7 -7-7 7" stroke="currentColor" strokeWidth="1.6" />
+            <rect x="-3" y="-3" width="6" height="6" rx="1.2" fill="currentColor" />
             {[
               [-7, -7],
               [7, -7],
@@ -375,17 +340,8 @@ export function SurveyBackdrop() {
         </g>
 
         {/* north arrow */}
-        <g
-          transform="translate(1548 112)"
-          className="text-ink-200 dark:text-ink-600"
-        >
-          <circle
-            r="18"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1"
-            opacity=".6"
-          />
+        <g transform="translate(1548 112)" className="text-ink-200 dark:text-ink-600">
+          <circle r="18" fill="none" stroke="currentColor" strokeWidth="1" opacity=".6" />
           <path d="M0 -15 6 6 0 2-6 6Z" fill="currentColor" />
           <text
             y="-22"

@@ -3,11 +3,6 @@
 // hasPermission() always returns true today (see app/config/permissions.js).
 import { hasPermission } from "../../../app/config/permissions";
 
-export function PermissionGuard({
-  permission,
-  role,
-  fallback = null,
-  children,
-}) {
+export function PermissionGuard({ permission, role, fallback = null, children }) {
   return hasPermission(role, permission) ? children : fallback;
 }

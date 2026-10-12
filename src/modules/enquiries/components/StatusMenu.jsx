@@ -27,18 +27,14 @@ export function StatusMenu({ status, onChange, busy = false }) {
     if (!open || !buttonRef.current) return;
     const rect = buttonRef.current.getBoundingClientRect();
     const menuHeight = 10 * 36 + 16;
-    const up =
-      window.innerHeight - rect.bottom < menuHeight && rect.top > menuHeight;
+    const up = window.innerHeight - rect.bottom < menuHeight && rect.top > menuHeight;
     setPos({ top: up ? rect.top - 6 : rect.bottom + 6, left: rect.left, up });
   }, [open]);
 
   useEffect(() => {
     if (!open) return;
     const close = (e) => {
-      if (
-        menuRef.current?.contains(e.target) ||
-        buttonRef.current?.contains(e.target)
-      )
+      if (menuRef.current?.contains(e.target) || buttonRef.current?.contains(e.target))
         return;
       setOpen(false);
     };
@@ -56,9 +52,7 @@ export function StatusMenu({ status, onChange, busy = false }) {
     };
   }, [open]);
 
-  const tone = status
-    ? (STATUS_STYLES[status] ?? STATUS_STYLES.SELECT)
-    : NOT_SET_TONE;
+  const tone = status ? (STATUS_STYLES[status] ?? STATUS_STYLES.SELECT) : NOT_SET_TONE;
 
   return (
     <>
@@ -94,7 +88,7 @@ export function StatusMenu({ status, onChange, busy = false }) {
               left: pos.left,
               transform: pos.up ? "translateY(-100%)" : undefined,
             }}
-            className="fixed z-80 w-60 rounded-xl bg-white p-1.5 shadow-panel ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800"
+            className="fixed z-[80] w-60 rounded-xl bg-white p-1.5 shadow-panel ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800"
             onClick={(e) => e.stopPropagation()}
           >
             {CURRENT_STATUSES.map((s) => (
@@ -113,9 +107,7 @@ export function StatusMenu({ status, onChange, busy = false }) {
                 )}
               >
                 <Badge tone={STATUS_STYLES[s.value]}>{s.label}</Badge>
-                {s.value === status && (
-                  <Check className="h-4 w-4 text-ink-500" />
-                )}
+                {s.value === status && <Check className="h-4 w-4 text-ink-500" />}
               </button>
             ))}
           </div>,

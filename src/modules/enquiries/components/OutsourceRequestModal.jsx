@@ -3,7 +3,13 @@ import { Plus, Trash2 } from "lucide-react";
 import { Modal } from "../../../shared/components/ui/Modal";
 import { Button } from "../../../shared/components/ui/Button";
 import { Toggle } from "../../../shared/components/forms/Toggle";
-import { FieldLabel, Input, Select, Textarea, FormRow } from "../../../shared/components/forms";
+import {
+  FieldLabel,
+  Input,
+  Select,
+  Textarea,
+  FormRow,
+} from "../../../shared/components/forms";
 import { PROJECT_LEADS, DEFAULT_ASSIGNEE } from "../constants/enquiryStatus";
 
 const emptyState = {
@@ -24,9 +30,14 @@ export function OutsourceRequestModal({ open, onClose, enquiry, onSubmit }) {
   const set = (patch) => setForm((f) => ({ ...f, ...patch }));
 
   const updateItem = (i, patch) =>
-    setForm((f) => ({ ...f, lineItems: f.lineItems.map((li, idx) => (idx === i ? { ...li, ...patch } : li)) }));
-  const addItem = () => set({ lineItems: [...form.lineItems, { quantity: "", description: "" }] });
-  const removeItem = (i) => set({ lineItems: form.lineItems.filter((_, idx) => idx !== i) });
+    setForm((f) => ({
+      ...f,
+      lineItems: f.lineItems.map((li, idx) => (idx === i ? { ...li, ...patch } : li)),
+    }));
+  const addItem = () =>
+    set({ lineItems: [...form.lineItems, { quantity: "", description: "" }] });
+  const removeItem = (i) =>
+    set({ lineItems: form.lineItems.filter((_, idx) => idx !== i) });
 
   // The parent shows the success / error toast; on failure the modal stays open.
   const handleSubmit = async () => {
@@ -65,7 +76,11 @@ export function OutsourceRequestModal({ open, onClose, enquiry, onSubmit }) {
     >
       <div className="space-y-4">
         <FieldLabel>Quotation required on/before</FieldLabel>
-        <Input type="date" value={form.quotationRequiredBy} onChange={(e) => set({ quotationRequiredBy: e.target.value })} />
+        <Input
+          type="date"
+          value={form.quotationRequiredBy}
+          onChange={(e) => set({ quotationRequiredBy: e.target.value })}
+        />
 
         <div>
           <p className="mb-1.5 text-sm font-medium text-ink-700">Line items</p>
@@ -77,8 +92,16 @@ export function OutsourceRequestModal({ open, onClose, enquiry, onSubmit }) {
           <div className="space-y-2">
             {form.lineItems.map((item, i) => (
               <div key={i} className="grid grid-cols-[1fr_3fr_auto] items-center gap-2">
-                <Input value={item.quantity} onChange={(e) => updateItem(i, { quantity: e.target.value })} placeholder="Qty" />
-                <Input value={item.description} onChange={(e) => updateItem(i, { description: e.target.value })} placeholder="Description" />
+                <Input
+                  value={item.quantity}
+                  onChange={(e) => updateItem(i, { quantity: e.target.value })}
+                  placeholder="Qty"
+                />
+                <Input
+                  value={item.description}
+                  onChange={(e) => updateItem(i, { description: e.target.value })}
+                  placeholder="Description"
+                />
                 <button
                   type="button"
                   onClick={() => removeItem(i)}
@@ -90,7 +113,11 @@ export function OutsourceRequestModal({ open, onClose, enquiry, onSubmit }) {
               </div>
             ))}
           </div>
-          <button type="button" onClick={addItem} className="mt-2 flex items-center gap-1.5 text-sm font-medium text-signal-600 hover:text-signal-700">
+          <button
+            type="button"
+            onClick={addItem}
+            className="mt-2 flex items-center gap-1.5 text-sm font-medium text-signal-600 hover:text-signal-700"
+          >
             <Plus className="h-3.5 w-3.5" />
             Add line item
           </button>
@@ -98,17 +125,27 @@ export function OutsourceRequestModal({ open, onClose, enquiry, onSubmit }) {
 
         <div>
           <FieldLabel>Purpose</FieldLabel>
-          <Textarea rows={2} value={form.purpose} onChange={(e) => set({ purpose: e.target.value })} />
+          <Textarea
+            rows={2}
+            value={form.purpose}
+            onChange={(e) => set({ purpose: e.target.value })}
+          />
         </div>
 
         <FormRow>
           <div>
             <FieldLabel>Recommended supplier</FieldLabel>
-            <Input value={form.recommendedSupplier} onChange={(e) => set({ recommendedSupplier: e.target.value })} />
+            <Input
+              value={form.recommendedSupplier}
+              onChange={(e) => set({ recommendedSupplier: e.target.value })}
+            />
           </div>
           <div>
             <FieldLabel>Availability</FieldLabel>
-            <Input value={form.availability} onChange={(e) => set({ availability: e.target.value })} />
+            <Input
+              value={form.availability}
+              onChange={(e) => set({ availability: e.target.value })}
+            />
           </div>
         </FormRow>
 
@@ -119,7 +156,10 @@ export function OutsourceRequestModal({ open, onClose, enquiry, onSubmit }) {
           </div>
           <div>
             <FieldLabel>Assigned to</FieldLabel>
-            <Select value={form.assignedTo} onChange={(e) => set({ assignedTo: e.target.value })}>
+            <Select
+              value={form.assignedTo}
+              onChange={(e) => set({ assignedTo: e.target.value })}
+            >
               <option>{DEFAULT_ASSIGNEE.outsource}</option>
               {PROJECT_LEADS.map((p) => (
                 <option key={p}>{p}</option>
@@ -130,10 +170,18 @@ export function OutsourceRequestModal({ open, onClose, enquiry, onSubmit }) {
 
         <div>
           <FieldLabel>Remarks</FieldLabel>
-          <Textarea rows={2} value={form.remarks} onChange={(e) => set({ remarks: e.target.value })} />
+          <Textarea
+            rows={2}
+            value={form.remarks}
+            onChange={(e) => set({ remarks: e.target.value })}
+          />
         </div>
 
-        <Toggle label="Email notification" checked={form.emailNotification} onChange={(v) => set({ emailNotification: v })} />
+        <Toggle
+          label="Email notification"
+          checked={form.emailNotification}
+          onChange={(v) => set({ emailNotification: v })}
+        />
       </div>
     </Modal>
   );

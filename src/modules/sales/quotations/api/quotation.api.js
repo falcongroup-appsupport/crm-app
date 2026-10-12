@@ -1,14 +1,17 @@
 import { axiosInstance } from "../../../../shared/api/axiosInstance";
 
-// CRM_APIS.pdf lists "GET BY ID QUOTATION" as /api/enquiry/8, which looks like
-// a copy-paste slip — /api/quotation/{id} is assumed. Confirm with the backend.
 export const quotationApi = {
+  /** All quotations (GET /api/quotation returns a plain array). */
+  getAll() {
+    return axiosInstance.get("/api/quotation");
+  },
   create(body) {
     return axiosInstance.post("/api/quotation", body);
   },
   getById(id) {
     return axiosInstance.get(`/api/quotation/${id}`);
   },
+  /** Quotations raised against one enquiry — an enquiry can have several. */
   getByEnquiry(enquiryId) {
     return axiosInstance.get(`/api/quotation/enquiry/${enquiryId}`);
   },

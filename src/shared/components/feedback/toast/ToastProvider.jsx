@@ -6,12 +6,7 @@ import { cn } from "../../../utils/cn";
 import { ToastContext } from "./toastContext";
 
 const MAX_VISIBLE = 4;
-const DEFAULT_DURATION = {
-  success: 4000,
-  info: 4500,
-  warning: 6000,
-  error: 8000,
-};
+const DEFAULT_DURATION = { success: 4000, info: 4500, warning: 6000, error: 8000 };
 
 const VARIANTS = {
   success: {
@@ -22,14 +17,12 @@ const VARIANTS = {
   },
   error: {
     icon: XCircle,
-    iconClass:
-      "text-signal-600 bg-signal-50 dark:text-signal-400 dark:bg-signal-500/10",
+    iconClass: "text-signal-600 bg-signal-50 dark:text-signal-400 dark:bg-signal-500/10",
     bar: "bg-signal-500",
   },
   warning: {
     icon: AlertTriangle,
-    iconClass:
-      "text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-500/10",
+    iconClass: "text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-500/10",
     bar: "bg-amber-500",
   },
   info: {
@@ -60,10 +53,7 @@ function ToastItem({ toast, onDismiss }) {
   const pause = () => {
     if (!toast.duration) return;
     clearTimeout(timer.current);
-    remaining.current = Math.max(
-      0,
-      remaining.current - (Date.now() - startedAt.current),
-    );
+    remaining.current = Math.max(0, remaining.current - (Date.now() - startedAt.current));
     setPaused(true);
   };
   const resume = () => {
@@ -101,7 +91,7 @@ function ToastItem({ toast, onDismiss }) {
             iconClass,
           )}
         >
-          <Icon className="h-[18px] w-[18px]" />
+          <Icon className="h-5 w-5" />
         </span>
         <div className="min-w-0 flex-1 pt-0.5">
           <p className="text-sm font-semibold text-ink-950 dark:text-white">

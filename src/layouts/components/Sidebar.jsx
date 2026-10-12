@@ -3,10 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Crosshair, ChevronDown, X } from "lucide-react";
 import { cn } from "../../shared/utils/cn";
-import {
-  NAV_DASHBOARD,
-  NAV_GROUPS as GROUPS,
-} from "../../app/config/navigation";
+import { NAV_DASHBOARD, NAV_GROUPS as GROUPS } from "../../app/config/navigation";
 
 function Brand({ collapsed }) {
   return (
@@ -68,9 +65,7 @@ function NavGroups({ onNavigate, collapsed, onExpand }) {
     return (
       <nav className="flex-1 space-y-1 overflow-y-auto px-2 pb-4">
         {GROUPS.map((group) => {
-          const isActiveGroup = group.items.some((i) =>
-            pathname.startsWith(i.to),
-          );
+          const isActiveGroup = group.items.some((i) => pathname.startsWith(i.to));
           return (
             <button
               key={group.label}
@@ -205,11 +200,7 @@ export function MobileSidebar({ open, onClose }) {
             <div className="px-3 pb-2">
               <DashboardLink onNavigate={onClose} collapsed={false} />
             </div>
-            <NavGroups
-              onNavigate={onClose}
-              collapsed={false}
-              onExpand={() => {}}
-            />
+            <NavGroups onNavigate={onClose} collapsed={false} onExpand={() => {}} />
           </motion.div>
         </div>
       )}

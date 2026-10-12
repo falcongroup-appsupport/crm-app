@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, Save } from "lucide-react";
 import { Button } from "../../../../shared/components/ui/Button";
 import {
+  FieldError,
   FieldLabel,
   FormRow,
   Input,
@@ -11,89 +12,111 @@ import {
 } from "../../../../shared/components/forms";
 import { ApiError } from "../../../../shared/api/axiosInstance";
 import { useToast } from "../../../../shared/components/feedback/toast/useToast";
-import { formatCurrency } from "../../../../shared/utils";
+import { formatCurrency, formatDate } from "../../../../shared/utils";
 import { useActivities } from "../../../masters/activities/hooks/useActivities";
 import { EMIRATES } from "../../../enquiries/constants/enquiryStatus";
 import { quotationApi } from "../api/quotation.api";
-import {
-  usePaymentTerms,
-  termLabel,
-  termDetails,
-} from "../hooks/usePaymentTerms";
+import { usePaymentTerms, termLabel, termDetails } from "../hooks/usePaymentTerms";
 import { CURRENCIES } from "../constants/quotationConstants";
 import {
   buildQuotationPayload,
   computeTotalDays,
   computeTotals,
+  daysLeft,
   emptyQuotation,
   normalizeQuotation,
+  validateQuotation,
+  validUntil,
 } from "../schemas/quotation.schema";
 import { QuotationItemsTable } from "./QuotationItemsTable";
 import { QuotationDurationTable } from "./QuotationDurationTable";
+import { QuotationStatusBadge } from "./QuotationStatusBadge";
 
 const CARD =
   "rounded-xl bg-white p-5 ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800";
 const TITLE = "mb-4 text-sm font-semibold text-ink-900 dark:text-ink-50";
 
 /**
- * create: pass `enquiry` (pre-fills customer, project and items from it).
- * edit:   pass `quotation` (the record from GET /api/quotation/{id}).
+ * create: pass `enquiry` (full GET /api/enquiry/{id} record — pre-fills the
+ *         customer, contact, project, emirate and items).
+ * edit:   pass `quotation` (GET /api/quotation/{id}).
  */
 export function QuotationForm({ mode, enquiry, quotation }) {
   const navigate = useNavigate();
+  const toast = useToast();
   const { activities } = useActivities();
   const { terms } = usePaymentTerms();
   const enquiryId = mode === "edit" ? quotation.enquiryId : enquiry.id;
+  const enquiryNo = mode === "edit" ? quotation.enquiryNo : enquiry?.enquiryNo;
 
   const [form, setForm] = useState(() =>
     mode === "edit" ? normalizeQuotation(quotation) : emptyQuotation(enquiry),
   );
+  const [attempted, setAttempted] = useState(false);
   const [saving, setSaving] = useState(false);
-  const toast = useToast();
+
+  const errors = useMemo(
+    () => (attempted ? validateQuotation(form) : {}),
+    [attempted, form],
+  );
+  const invalid = (key) => Boolean(errors[key]);
 
   const set = (patch) => setForm((f) => ({ ...f, ...patch }));
   const setAddress = (patch) =>
-    setForm((f) => ({
-      ...f,
-      customerAddress: { ...f.customerAddress, ...patch },
-    }));
+    setForm((f) => ({ ...f, customerAddress: { ...f.customerAddress, ...patch } }));
 
   const totals = computeTotals(form.items, form.discount);
   const totalDays = computeTotalDays(form.durations);
+  const expiry = validUntil(form.quotationDate, form.quotationValidity);
 
   const pickTerm = (value) => {
     const term = terms.find((t) => String(t.id) === value);
     set({
       paymentTermId: value,
       ...(term
-        ? {
-            detailedPaymentTerms:
-              termDetails(term) || form.detailedPaymentTerms,
-          }
+        ? { detailedPaymentTerms: termDetails(term) || form.detailedPaymentTerms }
         : {}),
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setAttempted(true);
+    const found = validateQuotation(form);
+    const count = Object.keys(found).length;
+    if (count) {
+      toast.warning(
+        count === 1 ? "1 field needs attention" : `${count} fields need attention`,
+        { description: "They're highlighted in red on the form." },
+      );
+      setTimeout(() => {
+        const first = document.querySelector('[aria-invalid="true"]');
+        first?.scrollIntoView({ behavior: "smooth", block: "center" });
+        first?.focus({ preventScroll: true });
+      }, 0);
+      return;
+    }
+
     setSaving(true);
     try {
       const body = buildQuotationPayload(form, enquiryId);
-      if (mode === "edit") await quotationApi.update(quotation.id, body);
-      else await quotationApi.create(body);
-      toast.success(
-        mode === "edit" ? "Quotation updated" : "Quotation created",
-        { description: form.quotationReference },
-      );
-      navigate(`/enquiries/${enquiryId}/quotation`);
+      const saved =
+        mode === "edit"
+          ? await quotationApi.update(quotation.id, body)
+          : await quotationApi.create(body);
+      const id = saved?.id ?? quotation?.id;
+      toast.success(mode === "edit" ? "Quotation updated" : "Quotation created", {
+        description:
+          saved?.quotationNo ?? quotation?.quotationNo ?? form.quotationReference,
+      });
+      navigate(id ? `/quotations/${id}` : "/quotations");
     } catch (err) {
       toast.error(
         mode === "edit"
           ? "Couldn't update the quotation"
           : "Couldn't create the quotation",
         {
-          description:
-            err instanceof ApiError ? err.message : "Please try again.",
+          description: err instanceof ApiError ? err.message : "Please try again.",
         },
       );
     } finally {
@@ -101,72 +124,111 @@ export function QuotationForm({ mode, enquiry, quotation }) {
     }
   };
 
+  const back =
+    mode === "edit"
+      ? `/quotations/${quotation.id}`
+      : enquiryId
+        ? `/enquiries/${enquiryId}`
+        : "/quotations";
+  const left = daysLeft(expiry);
+
   return (
     <div className="space-y-6 pb-16">
       <div className="flex items-center gap-3">
         <Link
-          to={
-            mode === "edit"
-              ? `/enquiries/${enquiryId}/quotation`
-              : "/quotations"
-          }
+          to={back}
           className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-50 hover:text-ink-900 dark:hover:bg-ink-800 dark:hover:text-white"
         >
           <ChevronLeft className="h-5 w-5" />
         </Link>
         <div>
-          <h1 className="font-display text-xl font-semibold text-ink-950 dark:text-white">
-            {mode === "edit" ? "Edit quotation" : "New quotation"}
-          </h1>
-          <p className="font-mono text-sm text-ink-400">
-            {mode === "edit"
-              ? form.quotationReference
-              : `For enquiry ${enquiry?.enquiryNo ?? ""}`}
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-display text-xl font-semibold text-ink-950 dark:text-white">
+              {mode === "edit" ? "Edit quotation" : "New quotation"}
+            </h1>
+            {mode === "edit" && <QuotationStatusBadge status={quotation.status} />}
+          </div>
+          <p className="text-sm text-ink-400">
+            {mode === "edit" ? (
+              <span className="font-mono">{quotation.quotationNo}</span>
+            ) : (
+              "Quotation number is generated on save"
+            )}
+            {enquiryNo && (
+              <>
+                {" · for enquiry "}
+                <Link
+                  to={`/enquiries/${enquiryId}`}
+                  className="font-mono hover:text-signal-600"
+                >
+                  {enquiryNo}
+                </Link>
+              </>
+            )}
           </p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} noValidate className="space-y-6">
         <section className={CARD}>
           <p className={TITLE}>Quotation details</p>
           <FormRow>
             <div>
               <FieldLabel required>Quotation reference</FieldLabel>
               <Input
-                required
                 value={form.quotationReference}
+                aria-invalid={invalid("quotationReference")}
                 onChange={(e) => set({ quotationReference: e.target.value })}
                 placeholder="QT-REF-001"
               />
+              <FieldError>{errors.quotationReference}</FieldError>
             </div>
             <div>
               <FieldLabel required>Quotation date</FieldLabel>
               <Input
-                required
                 type="date"
                 value={form.quotationDate}
+                aria-invalid={invalid("quotationDate")}
                 onChange={(e) => set({ quotationDate: e.target.value })}
               />
+              <FieldError>{errors.quotationDate}</FieldError>
             </div>
             <div>
-              <FieldLabel>Validity (days)</FieldLabel>
+              <FieldLabel required>Validity (days)</FieldLabel>
               <Input
                 type="number"
-                min="0"
+                min="1"
+                max="365"
+                step="1"
                 value={form.quotationValidity}
+                aria-invalid={invalid("quotationValidity")}
                 onChange={(e) => set({ quotationValidity: e.target.value })}
               />
+              {errors.quotationValidity ? (
+                <FieldError>{errors.quotationValidity}</FieldError>
+              ) : (
+                expiry && (
+                  <p
+                    className={`mt-1 text-xs ${left !== null && left < 0 ? "text-signal-600 dark:text-signal-400" : "text-ink-400"}`}
+                  >
+                    Valid until {formatDate(expiry)}
+                    {left !== null && left < 0 ? " — already expired" : ""}
+                  </p>
+                )
+              )}
             </div>
             <div>
-              <FieldLabel>Currency</FieldLabel>
+              <FieldLabel required>Currency</FieldLabel>
               <Select
                 value={form.currency}
+                aria-invalid={invalid("currency")}
                 onChange={(e) => set({ currency: e.target.value })}
               >
                 {CURRENCIES.map((c) => (
                   <option key={c}>{c}</option>
                 ))}
               </Select>
+              <FieldError>{errors.currency}</FieldError>
             </div>
           </FormRow>
         </section>
@@ -175,42 +237,55 @@ export function QuotationForm({ mode, enquiry, quotation }) {
           <p className={TITLE}>Customer / Client</p>
           <FormRow>
             <div>
-              <FieldLabel required>Customer / Client name</FieldLabel>
+              <FieldLabel required>Customer / Client</FieldLabel>
               <Input
-                required
                 value={form.customerName}
+                aria-invalid={invalid("customerName")}
                 onChange={(e) => set({ customerName: e.target.value })}
+                placeholder="Company name"
               />
+              <FieldError>{errors.customerName}</FieldError>
             </div>
             <div>
               <FieldLabel>Attention to</FieldLabel>
               <Input
                 value={form.attentionTo}
+                aria-invalid={invalid("attentionTo")}
                 onChange={(e) => set({ attentionTo: e.target.value })}
+                placeholder="Contact person"
               />
+              <FieldError>{errors.attentionTo}</FieldError>
             </div>
             <div>
               <FieldLabel>Email</FieldLabel>
               <Input
                 type="email"
                 value={form.emailId}
+                aria-invalid={invalid("emailId")}
                 onChange={(e) => set({ emailId: e.target.value })}
+                placeholder="name@company.com"
               />
+              <FieldError>{errors.emailId}</FieldError>
             </div>
             <div>
               <FieldLabel>Contact number</FieldLabel>
               <Input
+                type="tel"
                 value={form.contactNumber}
+                aria-invalid={invalid("contactNumber")}
                 onChange={(e) => set({ contactNumber: e.target.value })}
+                placeholder="+971 5X XXX XXXX"
               />
+              <FieldError>{errors.contactNumber}</FieldError>
             </div>
             <div className="sm:col-span-2">
               <FieldLabel required>Project name</FieldLabel>
               <Input
-                required
                 value={form.projectName}
+                aria-invalid={invalid("projectName")}
                 onChange={(e) => set({ projectName: e.target.value })}
               />
+              <FieldError>{errors.projectName}</FieldError>
             </div>
           </FormRow>
         </section>
@@ -225,6 +300,10 @@ export function QuotationForm({ mode, enquiry, quotation }) {
                 onChange={(e) => setAddress({ emirate: e.target.value })}
               >
                 <option value="">Select emirate…</option>
+                {form.customerAddress.emirate &&
+                  !EMIRATES.includes(form.customerAddress.emirate) && (
+                    <option>{form.customerAddress.emirate}</option>
+                  )}
                 {EMIRATES.map((em) => (
                   <option key={em}>{em}</option>
                 ))}
@@ -248,9 +327,7 @@ export function QuotationForm({ mode, enquiry, quotation }) {
               <FieldLabel>Building / Community</FieldLabel>
               <Input
                 value={form.customerAddress.buildingCommunityName}
-                onChange={(e) =>
-                  setAddress({ buildingCommunityName: e.target.value })
-                }
+                onChange={(e) => setAddress({ buildingCommunityName: e.target.value })}
               />
             </div>
             <div>
@@ -278,9 +355,7 @@ export function QuotationForm({ mode, enquiry, quotation }) {
               <FieldLabel>Additional landmarks</FieldLabel>
               <Input
                 value={form.customerAddress.additionalLandmarks}
-                onChange={(e) =>
-                  setAddress({ additionalLandmarks: e.target.value })
-                }
+                onChange={(e) => setAddress({ additionalLandmarks: e.target.value })}
               />
             </div>
           </FormRow>
@@ -293,6 +368,7 @@ export function QuotationForm({ mode, enquiry, quotation }) {
             activities={activities}
             currency={form.currency}
             onChange={(items) => set({ items })}
+            errors={errors}
           />
 
           <div className="mt-5 flex flex-col items-end gap-2 border-t border-ink-100 pt-4 text-sm dark:border-ink-800">
@@ -315,10 +391,16 @@ export function QuotationForm({ mode, enquiry, quotation }) {
                 min="0"
                 step="any"
                 value={form.discount}
+                aria-invalid={invalid("discount")}
                 onChange={(e) => set({ discount: e.target.value })}
-                className="w-32! text-right"
+                className="!w-32 text-right"
               />
             </div>
+            {errors.discount && (
+              <div className="w-full max-w-xs text-right">
+                <FieldError>{errors.discount}</FieldError>
+              </div>
+            )}
             <div className="flex w-full max-w-xs justify-between border-t border-ink-100 pt-2 text-base font-semibold text-ink-950 dark:border-ink-800 dark:text-white">
               <span>Total</span>
               <span className="tabular">
@@ -343,6 +425,7 @@ export function QuotationForm({ mode, enquiry, quotation }) {
           <QuotationDurationTable
             durations={form.durations}
             onChange={(durations) => set({ durations })}
+            errors={errors}
           />
         </section>
 
@@ -356,6 +439,12 @@ export function QuotationForm({ mode, enquiry, quotation }) {
                 onChange={(e) => pickTerm(e.target.value)}
               >
                 <option value="">Select payment term…</option>
+                {form.paymentTermId &&
+                  !terms.some((t) => String(t.id) === String(form.paymentTermId)) && (
+                    <option value={form.paymentTermId}>
+                      {quotation?.paymentTermName || `Term #${form.paymentTermId}`}
+                    </option>
+                  )}
                 {terms.map((t) => (
                   <option key={t.id} value={t.id}>
                     {termLabel(t)}
@@ -370,37 +459,46 @@ export function QuotationForm({ mode, enquiry, quotation }) {
               <Textarea
                 rows={4}
                 value={form.detailedPaymentTerms}
+                aria-invalid={invalid("detailedPaymentTerms")}
                 onChange={(e) => set({ detailedPaymentTerms: e.target.value })}
+                placeholder={"25% Advance\n75% Against submission of Final Reports"}
               />
+              <FieldError>{errors.detailedPaymentTerms}</FieldError>
             </div>
             <div>
               <FieldLabel>Terms &amp; conditions</FieldLabel>
               <Textarea
                 rows={4}
                 value={form.termsAndConditions}
+                aria-invalid={invalid("termsAndConditions")}
                 onChange={(e) => set({ termsAndConditions: e.target.value })}
               />
+              <FieldError>{errors.termsAndConditions}</FieldError>
             </div>
             <div className="lg:col-span-2">
               <FieldLabel>Internal remarks</FieldLabel>
               <Textarea
                 rows={3}
                 value={form.internalRemarks}
+                aria-invalid={invalid("internalRemarks")}
                 onChange={(e) => set({ internalRemarks: e.target.value })}
                 placeholder="Not shown to the client"
               />
+              <FieldError>{errors.internalRemarks}</FieldError>
             </div>
           </div>
         </section>
 
-        <div className="flex items-center justify-end gap-2 border-t border-ink-100 pt-5 dark:border-ink-800">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ink-100 pt-5 dark:border-ink-800">
+          <p className="text-sm text-ink-500 dark:text-ink-400">
+            {form.items.length} item{form.items.length === 1 ? "" : "s"} · Total{" "}
+            <span className="font-semibold text-ink-900 dark:text-ink-50">
+              {formatCurrency(totals.total, form.currency)}
+            </span>
+          </p>
           <Button type="submit" disabled={saving}>
             <Save className="h-4 w-4" />
-            {saving
-              ? "Saving…"
-              : mode === "edit"
-                ? "Save changes"
-                : "Create quotation"}
+            {saving ? "Saving…" : mode === "edit" ? "Save changes" : "Create quotation"}
           </Button>
         </div>
       </form>
