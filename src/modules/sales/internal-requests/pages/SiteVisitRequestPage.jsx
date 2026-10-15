@@ -1,22 +1,10 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import {
-  ChevronLeft,
-  Pencil,
-  Save,
-  X,
-  Download,
-  FolderOpen,
-} from "lucide-react";
+import { ChevronLeft, Pencil, Save, X, Download, FolderOpen } from "lucide-react";
 import { Button } from "../../../../shared/components/ui/Button";
 import { Tabs } from "../../../../shared/components/ui/Tabs";
 import { Modal } from "../../../../shared/components/ui/Modal";
-import {
-  FieldLabel,
-  Input,
-  Select,
-  Textarea,
-} from "../../../../shared/components/forms";
+import { FieldLabel, Input, Select, Textarea } from "../../../../shared/components/forms";
 import { useInternalRequests } from "../hooks/useInternalRequests";
 import { useToast } from "../../../../shared/components/feedback/toast/useToast";
 import { formatDateTime } from "../../../../shared/utils";
@@ -49,9 +37,7 @@ export default function SiteVisitRequestPage() {
   const [draft, setDraft] = useState(request?.detail || {});
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
-  const [visitStatus, setVisitStatus] = useState(
-    request?.visitStatus || "Pending",
-  );
+  const [visitStatus, setVisitStatus] = useState(request?.visitStatus || "Pending");
 
   if (!request) {
     return (
@@ -115,23 +101,14 @@ export default function SiteVisitRequestPage() {
         <div className="space-y-5 rounded-xl bg-white p-5 ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
           {!editing ? (
             <>
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%-3rem)/4)),1fr))] gap-4">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%_-_3rem)/4)),1fr))] gap-4">
                 <ReadRow
                   label="Appointment"
                   value={draft.appointment && formatDateTime(draft.appointment)}
                 />
-                <ReadRow
-                  label="Contact person"
-                  value={draft.contactPersonName}
-                />
-                <ReadRow
-                  label="Contact number"
-                  value={draft.contactPersonNumber}
-                />
-                <ReadRow
-                  label="Meeting location"
-                  value={draft.meetingLocation}
-                />
+                <ReadRow label="Contact person" value={draft.contactPersonName} />
+                <ReadRow label="Contact number" value={draft.contactPersonNumber} />
+                <ReadRow label="Meeting location" value={draft.meetingLocation} />
                 <ReadRow label="Meeting address" value={draft.meetingAddress} />
                 <ReadRow label="Assigned to" value={draft.assignedTo} />
                 <ReadRow
@@ -148,11 +125,7 @@ export default function SiteVisitRequestPage() {
                     <Pencil className="h-3.5 w-3.5" />
                     Edit
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    onClick={() => setCancelOpen(true)}
-                  >
+                  <Button size="sm" variant="danger" onClick={() => setCancelOpen(true)}>
                     <X className="h-3.5 w-3.5" />
                     Cancel request
                   </Button>
@@ -161,7 +134,7 @@ export default function SiteVisitRequestPage() {
             </>
           ) : (
             <>
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%-3rem)/4)),1fr))] gap-4">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%_-_3rem)/4)),1fr))] gap-4">
                 <div>
                   <FieldLabel>Appointment</FieldLabel>
                   <Input
@@ -188,9 +161,7 @@ export default function SiteVisitRequestPage() {
                   <FieldLabel>Contact number</FieldLabel>
                   <Input
                     value={draft.contactPersonNumber || ""}
-                    onChange={(e) =>
-                      set({ contactPersonNumber: e.target.value })
-                    }
+                    onChange={(e) => set({ contactPersonNumber: e.target.value })}
                   />
                 </div>
                 <div>
@@ -221,11 +192,7 @@ export default function SiteVisitRequestPage() {
                   <Save className="h-3.5 w-3.5" />
                   Save changes
                 </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => setEditing(false)}
-                >
+                <Button size="sm" variant="secondary" onClick={() => setEditing(false)}>
                   Cancel
                 </Button>
               </div>
@@ -237,14 +204,11 @@ export default function SiteVisitRequestPage() {
       {tab === "permits" && (
         <div className="rounded-xl bg-white p-5 ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
           <p className="mb-1 text-xs font-semibold tracking-wide text-ink-400">
-            Documents uploaded by the Document Controller against this permit
-            request
+            Documents uploaded by the Document Controller against this permit request
           </p>
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-ink-200 py-12 text-center dark:border-ink-700">
             <FolderOpen className="h-6 w-6 text-ink-300" />
-            <p className="mt-2 text-sm text-ink-400">
-              No documents uploaded yet.
-            </p>
+            <p className="mt-2 text-sm text-ink-400">No documents uploaded yet.</p>
           </div>
           <Button size="sm" variant="secondary" className="mt-3" disabled>
             <Download className="h-3.5 w-3.5" />
@@ -258,7 +222,7 @@ export default function SiteVisitRequestPage() {
           <p className="text-xs font-semibold tracking-wide text-ink-400">
             Based on updates from the site schedule
           </p>
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%-3rem)/4)),1fr))] gap-4">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%_-_3rem)/4)),1fr))] gap-4">
             <ReadRow label="Site visit assigned to" value={draft.assignedTo} />
             <ReadRow label="Contact number" value={draft.contactPersonNumber} />
             <div>
@@ -280,9 +244,7 @@ export default function SiteVisitRequestPage() {
             </p>
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-ink-200 py-12 text-center dark:border-ink-700">
               <FolderOpen className="h-6 w-6 text-ink-300" />
-              <p className="mt-2 text-sm text-ink-400">
-                No documents uploaded yet.
-              </p>
+              <p className="mt-2 text-sm text-ink-400">No documents uploaded yet.</p>
             </div>
             <Button size="sm" variant="secondary" className="mt-3" disabled>
               <Download className="h-3.5 w-3.5" />

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { enquiryApi } from "../api/enquiry.api";
 import { ApiError } from "../../../shared/api/axiosInstance";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 20;
 
 export function useEnquiries() {
   const [enquiries, setEnquiries] = useState([]);
@@ -19,10 +19,7 @@ export function useEnquiries() {
     setLoading(true);
     setError(null);
     try {
-      const data = await enquiryApi.getAll({
-        page: targetPage,
-        size: PAGE_SIZE,
-      });
+      const data = await enquiryApi.getAll({ page: targetPage, size: PAGE_SIZE });
       setEnquiries(Array.isArray(data?.content) ? data.content : []);
       setTotalPages(data?.totalPages ?? 1);
       setPage(data?.number ?? targetPage);
@@ -30,9 +27,7 @@ export function useEnquiries() {
     } catch (err) {
       setConnected(false);
       setError(
-        err instanceof ApiError
-          ? err.message
-          : "Unexpected error loading enquiries",
+        err instanceof ApiError ? err.message : "Unexpected error loading enquiries",
       );
       setEnquiries([]);
       setTotalPages(1);
@@ -82,8 +77,7 @@ export function useEnquiries() {
   // sent (form-data update is partial). Reverts if the call fails.
   const changeStatus = useCallback(
     async (id, currentStatus) => {
-      const previous =
-        enquiries.find((e) => e.id === id)?.currentStatus ?? null;
+      const previous = enquiries.find((e) => e.id === id)?.currentStatus ?? null;
       const apply = (value) =>
         setEnquiries((prev) =>
           prev.map((e) => (e.id === id ? { ...e, currentStatus: value } : e)),
@@ -109,10 +103,7 @@ export function useEnquiries() {
 
   const setSiteVisit = useCallback(
     async (id, siteVisit) => {
-      await updateEnquiry(id, {
-        siteVisit,
-        currentStatus: "SITE_VISIT_REQUIRED",
-      });
+      await updateEnquiry(id, { siteVisit, currentStatus: "SITE_VISIT_REQUIRED" });
     },
     [updateEnquiry],
   );

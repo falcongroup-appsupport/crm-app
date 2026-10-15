@@ -3,19 +3,12 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { fieldBase } from "./fieldStyles";
 
-export const Select = forwardRef(function Select(
-  { className, children, ...props },
-  ref,
-) {
+export const Select = forwardRef(function Select({ className, children, ...props }, ref) {
   return (
     <div className="relative">
       <select
         ref={ref}
-        className={cn(
-          fieldBase,
-          "appearance-none pr-9 cursor-pointer",
-          className,
-        )}
+        className={cn(fieldBase, "appearance-none pr-9 cursor-pointer", className)}
         {...props}
       >
         {children}

@@ -1,37 +1,110 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { CheckCircle2, ChevronLeft, Pencil } from "lucide-react";
+import {
+  CheckCircle2,
+  ChevronLeft,
+  Download,
+  FilePlus2,
+  Mail,
+  Pencil,
+  Phone,
+} from "lucide-react";
 import { Button } from "../../../../shared/components/ui/Button";
 import { ReadField } from "../../../../shared/components/ui/ReadField";
 import { ApiError } from "../../../../shared/api/axiosInstance";
 import { useToast } from "../../../../shared/components/feedback/toast/useToast";
-import { formatCurrency, formatDate } from "../../../../shared/utils";
+import { formatCurrency, formatDate, formatDateTime } from "../../../../shared/utils";
 import { StatusBadge } from "../../../enquiries/components/StatusBadge";
 import { useEnquiry } from "../../../enquiries/hooks/useEnquiry";
 import { enquiryApi } from "../../../enquiries/api/enquiry.api";
 import { FollowUpHistory } from "../../follow-ups/components/FollowUpHistory";
+import { usePaymentTerms, termLabel } from "../hooks/usePaymentTerms";
+import { daysLeft, validUntil } from "../schemas/quotation.schema";
+import { QuotationStatusBadge } from "./QuotationStatusBadge";
+import { downloadQuotationPdf } from "../pdf/downloadQuotationPdf";
+import { TemplateContentView } from "./TemplateContentView";
 
 const CARD =
   "rounded-xl bg-white p-5 ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800";
-const TITLE = "mb-3 text-xs font-semibold tracking-wide text-ink-400";
+const TITLE = "mb-4 text-xs font-semibold uppercase tracking-wide text-ink-400";
 const GRID =
-  "grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%_-_3rem)/4)),1fr))] gap-4";
+  "grid grid-cols-[repeat(auto-fill,minmax(max(14rem,calc((100%_-_3rem)/4)),1fr))] gap-x-4 gap-y-5";
+const LINK =
+  "inline-flex items-center gap-1.5 text-signal-600 hover:text-signal-700 dark:text-signal-400";
 
+function ExpiryHint({ date }) {
+  const left = daysLeft(date);
+  if (left === null) return null;
+  const text =
+    left < 0
+      ? `expired ${-left} day${left === -1 ? "" : "s"} ago`
+      : left === 0
+        ? "expires today"
+        : `${left} day${left === 1 ? "" : "s"} left`;
+  const tone =
+    left < 0
+      ? "text-signal-600 dark:text-signal-400"
+      : left <= 3
+        ? "text-amber-600 dark:text-amber-400"
+        : "text-ink-400";
+  return <span className={`ml-2 text-xs font-normal ${tone}`}>({text})</span>;
+}
+
+/** Read-only quotation (GET /api/quotation/{id}) with follow-ups. */
 export function QuotationView({ quotation }) {
   const { hash } = useLocation();
   const navigate = useNavigate();
-  const { enquiry, refresh } = useEnquiry(quotation.enquiryId);
-  const [marking, setMarking] = useState(false);
   const toast = useToast();
+  const { enquiry, refresh } = useEnquiry(quotation.enquiryId, {
+    enabled: Boolean(quotation.enquiryId),
+  });
+  const { terms } = usePaymentTerms();
+  const [marking, setMarking] = useState(false);
+  const [pdfBusy, setPdfBusy] = useState(false);
+
   const currency = quotation.currency || "AED";
   const address = quotation.customerAddress ?? {};
   const delivered = enquiry?.currentStatus === "QUOTATION_DELIVERED";
+  const expiry = validUntil(quotation.quotationDate, quotation.quotationValidity);
+  const term = terms.find((t) => String(t.id) === String(quotation.paymentTermId));
+  const termName =
+    quotation.paymentTermName ||
+    (term
+      ? termLabel(term)
+      : quotation.paymentTermId
+        ? `Term #${quotation.paymentTermId}`
+        : "");
+  const downloadPdf = async () => {
+    setPdfBusy(true);
+    try {
+      await downloadQuotationPdf(quotation);
+    } catch {
+      toast.error("Couldn't generate the PDF. Please try again.");
+    } finally {
+      setPdfBusy(false);
+    }
+  };
+  const lead =
+    quotation.enquiryLead && quotation.enquiryLead !== "NO_LEAD"
+      ? quotation.enquiryLead
+      : "No lead";
+  // city and emirate are often the same ("Dubai, Dubai") — show each part once
+  const addressLine = [
+    ...new Set(
+      [
+        address.officeNumber,
+        address.buildingCommunityName,
+        address.streetAddress,
+        address.area,
+        address.city,
+        address.emirate,
+      ].filter(Boolean),
+    ),
+  ].join(", ");
 
   useEffect(() => {
     if (hash === "#follow-ups")
-      document
-        .getElementById("follow-ups")
-        ?.scrollIntoView({ behavior: "smooth" });
+      document.getElementById("follow-ups")?.scrollIntoView({ behavior: "smooth" });
   }, [hash, quotation.id]);
 
   const markDelivered = async () => {
@@ -42,12 +115,11 @@ export function QuotationView({ quotation }) {
       });
       await refresh();
       toast.success("Marked as delivered", {
-        description: `${enquiry?.enquiryNo ?? "The enquiry"} moved to Quotations issued`,
+        description: `${quotation.enquiryNo ?? "The enquiry"} is now Quotation Delivered`,
       });
     } catch (err) {
       toast.error("Couldn't mark it delivered", {
-        description:
-          err instanceof ApiError ? err.message : "Please try again.",
+        description: err instanceof ApiError ? err.message : "Please try again.",
       });
     } finally {
       setMarking(false);
@@ -56,99 +128,171 @@ export function QuotationView({ quotation }) {
 
   return (
     <div className="space-y-6 pb-16">
+      {/* header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
+        <div className="flex items-start gap-3">
           <Link
             to="/quotations"
-            className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-50 hover:text-ink-900 dark:hover:bg-ink-800 dark:hover:text-white"
+            className="mt-0.5 rounded-lg p-1.5 text-ink-400 hover:bg-ink-50 hover:text-ink-900 dark:hover:bg-ink-800 dark:hover:text-white"
           >
             <ChevronLeft className="h-5 w-5" />
           </Link>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <h1 className="font-mono text-lg font-semibold text-ink-950 dark:text-white">
-                {quotation.quotationReference}
+                {quotation.quotationNo}
               </h1>
+              <QuotationStatusBadge status={quotation.status} />
               {enquiry && <StatusBadge status={enquiry.currentStatus} />}
             </div>
-            <p className="text-sm text-ink-400">
+            <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">
               {quotation.customerName} ·{" "}
               <Link
                 to={`/enquiries/${quotation.enquiryId}`}
-                className="hover:text-signal-600"
+                className="font-mono hover:text-signal-600"
               >
-                {enquiry?.enquiryNo ?? `Enquiry #${quotation.enquiryId}`}
+                {quotation.enquiryNo ?? `Enquiry #${quotation.enquiryId}`}
               </Link>
+            </p>
+            <p className="mt-0.5 text-xs text-ink-400">
+              Created {formatDateTime(quotation.createdAt)}
+              {quotation.updatedAt &&
+                quotation.updatedAt !== quotation.createdAt &&
+                ` · Updated ${formatDateTime(quotation.updatedAt)}`}
             </p>
           </div>
         </div>
-        <div className="flex gap-2">
-          {!delivered && (
+        <div className="flex flex-wrap gap-2">
+          <Button variant="secondary" size="sm" onClick={downloadPdf} disabled={pdfBusy}>
+            <Download className="h-4 w-4" />
+            {pdfBusy ? "Generating…" : "Download PDF"}
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => navigate(`/quotations/new?enquiryId=${quotation.enquiryId}`)}
+          >
+            <FilePlus2 className="h-4 w-4" />
+            New quotation for this enquiry
+          </Button>
+          {enquiry && !delivered && (
             <Button
               variant="secondary"
               size="sm"
               onClick={markDelivered}
-              disabled={marking || !enquiry}
+              disabled={marking}
             >
               <CheckCircle2 className="h-4 w-4" />
               {marking ? "Updating…" : "Mark as delivered"}
             </Button>
           )}
-          <Button
-            size="sm"
-            onClick={() => navigate(`/quotations/${quotation.id}/edit`)}
-          >
+          <Button size="sm" onClick={() => navigate(`/quotations/${quotation.id}/edit`)}>
             <Pencil className="h-4 w-4" />
             Edit
           </Button>
         </div>
       </div>
 
+      {/* summary strip */}
+      <section className="grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-ink-100 ring-1 ring-ink-100 md:grid-cols-4 dark:bg-ink-800 dark:ring-ink-800">
+        {[
+          ["Total", formatCurrency(quotation.total, currency)],
+          ["Subtotal", formatCurrency(quotation.subtotal, currency)],
+          ["VAT", formatCurrency(quotation.salesTax, currency)],
+          ["Duration", `${quotation.estimatedTotalDays ?? 0} days`],
+        ].map(([label, value], i) => (
+          <div key={label} className="bg-white px-5 py-4 dark:bg-ink-900">
+            <p className="text-xs text-ink-400">{label}</p>
+            <p
+              className={`mt-1 font-display tabular ${i === 0 ? "text-xl font-semibold text-ink-950 dark:text-white" : "text-base font-medium text-ink-800 dark:text-ink-100"}`}
+            >
+              {value}
+            </p>
+          </div>
+        ))}
+      </section>
+
+      {/* quotation details */}
       <section className={CARD}>
         <p className={TITLE}>Quotation details</p>
         <div className={GRID}>
-          <ReadField label="Reference" value={quotation.quotationReference} />
-          <ReadField label="Date" value={formatDate(quotation.quotationDate)} />
+          <ReadField label="Quotation number" value={quotation.quotationNo} />
+          <ReadField label="Status">
+            <QuotationStatusBadge status={quotation.status} />
+          </ReadField>
+          <ReadField label="Quotation date" value={formatDate(quotation.quotationDate)} />
           <ReadField
             label="Validity"
             value={
-              quotation.quotationValidity
-                ? `${quotation.quotationValidity} days`
-                : ""
+              quotation.quotationValidity ? `${quotation.quotationValidity} days` : ""
             }
           />
+          <ReadField label="Valid until">
+            {expiry ? (
+              <>
+                {formatDate(expiry)}
+                <ExpiryHint date={expiry} />
+              </>
+            ) : (
+              "—"
+            )}
+          </ReadField>
           <ReadField label="Currency" value={currency} />
-          <ReadField label="Customer / Client" value={quotation.customerName} />
-          <ReadField label="Attention to" value={quotation.attentionTo} />
-          <ReadField label="Email" value={quotation.emailId} />
-          <ReadField label="Contact number" value={quotation.contactNumber} />
-          <div className="sm:col-span-2">
-            <ReadField label="Project" value={quotation.projectName} />
-          </div>
+          <ReadField label="Enquiry">
+            <Link
+              to={`/enquiries/${quotation.enquiryId}`}
+              className={`${LINK} font-mono`}
+            >
+              {quotation.enquiryNo ?? `#${quotation.enquiryId}`}
+            </Link>
+          </ReadField>
+          <ReadField label="Enquiry lead" value={lead} />
+          <ReadField label="Payment term" value={termName} />
         </div>
       </section>
 
+      {/* customer */}
       <section className={CARD}>
-        <p className={TITLE}>Customer address</p>
+        <p className={TITLE}>Customer / Client</p>
         <div className={GRID}>
-          <ReadField label="Emirate" value={address.emirate} />
-          <ReadField label="City" value={address.city} />
-          <ReadField label="Office number" value={address.officeNumber} />
-          <ReadField
-            label="Building / Community"
-            value={address.buildingCommunityName}
-          />
-          <ReadField label="Street" value={address.streetAddress} />
-          <ReadField label="Area" value={address.area} />
+          <ReadField label="Customer / Client" value={quotation.customerName} />
+          <ReadField label="Attention to" value={quotation.attentionTo} />
+          <ReadField label="Email">
+            {quotation.emailId ? (
+              <a href={`mailto:${quotation.emailId}`} className={`${LINK} break-all`}>
+                <Mail className="h-3.5 w-3.5 shrink-0" />
+                {quotation.emailId}
+              </a>
+            ) : (
+              "—"
+            )}
+          </ReadField>
+          <ReadField label="Contact number">
+            {quotation.contactNumber ? (
+              <a href={`tel:${quotation.contactNumber}`} className={LINK}>
+                <Phone className="h-3.5 w-3.5" />
+                {quotation.contactNumber}
+              </a>
+            ) : (
+              "—"
+            )}
+          </ReadField>
+          <div className="sm:col-span-2">
+            <ReadField label="Project" value={quotation.projectName} />
+          </div>
+          <div className="sm:col-span-2">
+            <ReadField label="Address" value={addressLine} />
+          </div>
           <ReadField label="PO box" value={address.poBox} />
           <ReadField label="Landmarks" value={address.additionalLandmarks} />
         </div>
       </section>
 
+      {/* items */}
       <section className={CARD}>
-        <p className={TITLE}>Items</p>
+        <p className={TITLE}>Items ({quotation.items?.length ?? 0})</p>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-205 text-left text-sm">
+          <table className="w-full min-w-[860px] text-left text-sm">
             <thead>
               <tr className="bg-ink-50 text-xs text-ink-400 dark:bg-ink-800">
                 {[
@@ -184,12 +328,8 @@ export function QuotationView({ quotation }) {
                   <td className="px-3 py-2 text-ink-600 dark:text-ink-300">
                     {it.itemDescription}
                   </td>
-                  <td className="px-3 py-2 text-ink-600 dark:text-ink-300">
-                    {it.unit}
-                  </td>
-                  <td className="px-3 py-2 text-right tabular">
-                    {it.quantity}
-                  </td>
+                  <td className="px-3 py-2 text-ink-600 dark:text-ink-300">{it.unit}</td>
+                  <td className="px-3 py-2 text-right tabular">{Number(it.quantity)}</td>
                   <td className="px-3 py-2 text-right tabular">
                     {formatCurrency(it.rate, currency)}
                   </td>
@@ -198,7 +338,7 @@ export function QuotationView({ quotation }) {
                   </td>
                   <td className="px-3 py-2 text-right tabular text-ink-500">
                     {formatCurrency(it.vatAED, currency)}{" "}
-                    <span className="text-xs">({it.vatPercentage}%)</span>
+                    <span className="text-xs">({Number(it.vatPercentage)}%)</span>
                   </td>
                   <td className="px-3 py-2 text-right font-medium tabular">
                     {formatCurrency(it.totalAED, currency)}
@@ -224,50 +364,70 @@ export function QuotationView({ quotation }) {
           ))}
           <div className="flex w-full max-w-xs justify-between border-t border-ink-100 pt-2 text-base font-semibold text-ink-950 dark:border-ink-800 dark:text-white">
             <span>Total</span>
-            <span className="tabular">
-              {formatCurrency(quotation.total, currency)}
-            </span>
+            <span className="tabular">{formatCurrency(quotation.total, currency)}</span>
           </div>
         </div>
       </section>
 
+      {/* duration */}
       <section className={CARD}>
         <div className="mb-3 flex items-baseline justify-between">
-          <p className="text-xs font-semibold tracking-wide text-ink-400">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink-400">
             Duration
           </p>
           <p className="text-xs text-ink-400">
             Estimated total:{" "}
             <span className="font-semibold text-ink-700 dark:text-ink-200">
-              {quotation.estimatedTotalDays ?? 0} days
+              {Number(quotation.estimatedTotalDays ?? 0)} days
             </span>
           </p>
         </div>
-        <table className="w-full text-left text-sm">
-          <tbody>
-            {(quotation.durations ?? []).map((d, i) => (
-              <tr
-                key={d.id ?? i}
-                className="border-t border-ink-50 first:border-0 dark:border-ink-800"
-              >
-                <td className="py-2 pr-3 text-ink-400">{d.slNo ?? i + 1}</td>
-                <td className="py-2 pr-3 font-medium text-ink-900 dark:text-ink-50">
-                  {d.description}
-                </td>
-                <td className="py-2 pr-3 tabular text-ink-700 dark:text-ink-200">
-                  {d.duration} {d.unit}
-                </td>
-                <td className="py-2 text-ink-500">{d.remarks || "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {(quotation.durations ?? []).length === 0 ? (
+          <p className="text-sm text-ink-400">No duration breakdown.</p>
+        ) : (
+          <table className="w-full text-left text-sm">
+            <tbody>
+              {quotation.durations.map((d, i) => (
+                <tr
+                  key={d.id ?? i}
+                  className="border-t border-ink-50 first:border-0 dark:border-ink-800"
+                >
+                  <td className="w-10 py-2 pr-3 text-ink-400">{d.slNo ?? i + 1}</td>
+                  <td className="py-2 pr-3 font-medium text-ink-900 dark:text-ink-50">
+                    {d.description}
+                  </td>
+                  <td className="py-2 pr-3 tabular text-ink-700 dark:text-ink-200">
+                    {Number(d.duration)} {d.unit}
+                  </td>
+                  <td className="py-2 text-ink-500">{d.remarks || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </section>
 
+      {/* template content (scope, considerations, deliverables, equipment) */}
+      <section className={CARD}>
+        <div className="mb-4 flex items-baseline justify-between gap-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink-400">
+            Template content
+          </p>
+          <Link
+            to={`/quotations/${quotation.id}/edit#template`}
+            className="text-xs font-medium text-signal-600 hover:text-signal-700 dark:text-signal-400"
+          >
+            Edit content
+          </Link>
+        </div>
+        <TemplateContentView html={quotation.templateContents} />
+      </section>
+
+      {/* payment + notes */}
       <section className={CARD}>
         <p className={TITLE}>Payment terms &amp; notes</p>
-        <div className="grid gap-4 lg:grid-cols-2">
-          <ReadField label="Detailed payment terms">
+        <div className="grid gap-5 lg:grid-cols-2">
+          <ReadField label={termName ? `Payment terms — ${termName}` : "Payment terms"}>
             <span className="whitespace-pre-line">
               {quotation.detailedPaymentTerms || "—"}
             </span>
@@ -277,7 +437,7 @@ export function QuotationView({ quotation }) {
               {quotation.termsAndConditions || "—"}
             </span>
           </ReadField>
-          <ReadField label="Internal remarks">
+          <ReadField label="Internal remarks (not shown to the client)">
             <span className="whitespace-pre-line">
               {quotation.internalRemarks || "—"}
             </span>

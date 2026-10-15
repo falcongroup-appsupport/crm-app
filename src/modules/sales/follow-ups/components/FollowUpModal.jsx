@@ -10,10 +10,7 @@ import {
 } from "../../../../shared/components/forms";
 import { ApiError } from "../../../../shared/api/axiosInstance";
 import { useToast } from "../../../../shared/components/feedback/toast/useToast";
-import {
-  FOLLOW_UP_STATUSES,
-  FOLLOW_UP_TYPES,
-} from "../constants/followUpConstants";
+import { FOLLOW_UP_STATUSES, FOLLOW_UP_TYPES } from "../constants/followUpConstants";
 
 const nowLocal = () => {
   const d = new Date();
@@ -57,8 +54,7 @@ export function FollowUpModal({ open, onClose, quotation, onSubmit }) {
       onClose();
     } catch (err) {
       toast.error("Couldn't save the follow-up", {
-        description:
-          err instanceof ApiError ? err.message : "Please try again.",
+        description: err instanceof ApiError ? err.message : "Please try again.",
       });
     } finally {
       setSaving(false);
@@ -79,11 +75,7 @@ export function FollowUpModal({ open, onClose, quotation, onSubmit }) {
             <Button variant="secondary" size="sm" onClick={onClose}>
               Cancel
             </Button>
-            <Button
-              size="sm"
-              onClick={submit}
-              disabled={saving || !form.response.trim()}
-            >
+            <Button size="sm" onClick={submit} disabled={saving || !form.response.trim()}>
               {saving ? "Saving…" : "Save follow-up"}
             </Button>
           </div>
@@ -102,10 +94,7 @@ export function FollowUpModal({ open, onClose, quotation, onSubmit }) {
           </div>
           <div>
             <FieldLabel>Type</FieldLabel>
-            <Select
-              value={form.type}
-              onChange={(e) => set({ type: e.target.value })}
-            >
+            <Select value={form.type} onChange={(e) => set({ type: e.target.value })}>
               {FOLLOW_UP_TYPES.map((t) => (
                 <option key={t}>{t}</option>
               ))}

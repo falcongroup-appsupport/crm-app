@@ -10,9 +10,7 @@ export function Tabs({ tabs, active, onChange }) {
           onClick={() => onChange(tab.key)}
           className={cn(
             "relative flex-1 rounded-md px-3 py-2 transition-colors",
-            active === tab.key
-              ? "text-ink-950"
-              : "text-ink-300 hover:text-white",
+            active === tab.key ? "text-ink-950" : "text-ink-300 hover:text-white",
           )}
         >
           {active === tab.key && (

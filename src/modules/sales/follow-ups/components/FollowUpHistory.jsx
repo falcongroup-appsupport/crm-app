@@ -11,8 +11,9 @@ import { FollowUpModal } from "./FollowUpModal";
 import { ErrorToast } from "../../../../shared/components/feedback/toast/ErrorToast";
 
 export function FollowUpHistory({ quotation }) {
-  const { items, page, totalPages, loading, error, goToPage, create } =
-    useFollowUps(quotation.id);
+  const { items, page, totalPages, loading, error, goToPage, create } = useFollowUps(
+    quotation.id,
+  );
   const [open, setOpen] = useState(false);
 
   return (
@@ -33,29 +34,19 @@ export function FollowUpHistory({ quotation }) {
       {loading ? (
         <Loader label="Loading follow-ups…" className="py-8" />
       ) : items.length === 0 ? (
-        <p className="py-6 text-center text-sm text-ink-400">
-          No follow-ups logged yet.
-        </p>
+        <p className="py-6 text-center text-sm text-ink-400">No follow-ups logged yet.</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-180 text-left text-sm">
+          <table className="w-full min-w-[720px] text-left text-sm">
             <thead>
               <tr className="border-b border-ink-100 text-xs text-ink-400 dark:border-ink-800">
-                {[
-                  "Date",
-                  "Type",
-                  "Status",
-                  "Contact",
-                  "Response",
-                  "Reported to",
-                ].map((c) => (
-                  <th
-                    key={c}
-                    className="whitespace-nowrap px-3 py-2 font-medium"
-                  >
-                    {c}
-                  </th>
-                ))}
+                {["Date", "Type", "Status", "Contact", "Response", "Reported to"].map(
+                  (c) => (
+                    <th key={c} className="whitespace-nowrap px-3 py-2 font-medium">
+                      {c}
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
             <tbody>
@@ -67,20 +58,15 @@ export function FollowUpHistory({ quotation }) {
                   <td className="whitespace-nowrap px-3 py-2.5 text-ink-500">
                     {formatDateTime(f.date)}
                   </td>
-                  <td className="px-3 py-2.5 text-ink-700 dark:text-ink-200">
-                    {f.type}
-                  </td>
+                  <td className="px-3 py-2.5 text-ink-700 dark:text-ink-200">{f.type}</td>
                   <td className="px-3 py-2.5">
                     <Badge>
-                      {FOLLOW_UP_STATUS_LABEL[f.currentStatus] ??
-                        f.currentStatus}
+                      {FOLLOW_UP_STATUS_LABEL[f.currentStatus] ?? f.currentStatus}
                     </Badge>
                   </td>
                   <td className="px-3 py-2.5 text-ink-700 dark:text-ink-200">
                     {f.contactPerson}
-                    <span className="block text-xs text-ink-400">
-                      {f.contactNumber}
-                    </span>
+                    <span className="block text-xs text-ink-400">{f.contactNumber}</span>
                   </td>
                   <td className="max-w-md px-3 py-2.5 text-ink-600 dark:text-ink-300">
                     {f.response}
@@ -93,11 +79,7 @@ export function FollowUpHistory({ quotation }) {
             </tbody>
           </table>
           <div className="mt-3">
-            <Pagination
-              page={page}
-              totalPages={totalPages}
-              onChange={goToPage}
-            />
+            <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
           </div>
         </div>
       )}

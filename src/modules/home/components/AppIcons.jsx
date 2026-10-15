@@ -37,26 +37,10 @@ const ICONS = {
     <Svg {...p}>
       <rect x="6" y="6" width="17" height="17" rx="4" fill={C.violet} />
       <rect x="27" y="6" width="15" height="7" rx="3.5" fill={C.red} />
-      <rect
-        x="27"
-        y="16"
-        width="15"
-        height="7"
-        rx="3.5"
-        fill={C.coral}
-        style={mul}
-      />
+      <rect x="27" y="16" width="15" height="7" rx="3.5" fill={C.coral} style={mul} />
       <rect x="6" y="27" width="17" height="15" rx="4" fill={C.sky} />
       <rect x="27" y="31" width="6" height="11" rx="2" fill={C.teal} />
-      <rect
-        x="36"
-        y="27"
-        width="6"
-        height="15"
-        rx="2"
-        fill={C.green}
-        style={mul}
-      />
+      <rect x="36" y="27" width="6" height="15" rx="2" fill={C.green} style={mul} />
     </Svg>
   ),
   comments: (p) => (
@@ -99,11 +83,7 @@ const ICONS = {
       <rect x="14" y="26" width="5" height="11" rx="1.5" fill={W} />
       <rect x="21.5" y="20" width="5" height="17" rx="1.5" fill={W} />
       <rect x="29" y="14" width="5" height="23" rx="1.5" fill={W} />
-      <path
-        d="M8 8a4 4 0 0 1 4-4h26a4 4 0 0 1 4 4v4H8z"
-        fill={C.indigo}
-        style={mul}
-      />
+      <path d="M8 8a4 4 0 0 1 4-4h26a4 4 0 0 1 4 4v4H8z" fill={C.indigo} style={mul} />
     </Svg>
   ),
   benchmarks: (p) => (
@@ -157,24 +137,8 @@ const ICONS = {
   quotations: (p) => (
     <Svg {...p}>
       <rect x="9" y="5" width="25" height="33" rx="4" fill={C.amber} />
-      <rect
-        x="14"
-        y="12"
-        width="15"
-        height="3"
-        rx="1.5"
-        fill={W}
-        opacity=".85"
-      />
-      <rect
-        x="14"
-        y="18"
-        width="10"
-        height="3"
-        rx="1.5"
-        fill={W}
-        opacity=".85"
-      />
+      <rect x="14" y="12" width="15" height="3" rx="1.5" fill={W} opacity=".85" />
+      <rect x="14" y="18" width="10" height="3" rx="1.5" fill={W} opacity=".85" />
       <circle cx="32" cy="33" r="10" fill={C.red} style={mul} />
     </Svg>
   ),
@@ -231,11 +195,7 @@ const ICONS = {
   planning: (p) => (
     <Svg {...p}>
       <rect x="6" y="9" width="36" height="32" rx="5" fill={C.sky} />
-      <path
-        d="M11 9h26a5 5 0 0 1 5 5v5H6v-5a5 5 0 0 1 5-5z"
-        fill={C.red}
-        style={mul}
-      />
+      <path d="M11 9h26a5 5 0 0 1 5 5v5H6v-5a5 5 0 0 1 5-5z" fill={C.red} style={mul} />
       <rect x="13" y="5" width="4" height="9" rx="2" fill={C.ink} />
       <rect x="31" y="5" width="4" height="9" rx="2" fill={C.ink} />
       <rect x="12" y="25" width="6" height="5" rx="1.5" fill={W} />
@@ -279,15 +239,7 @@ const ICONS = {
     <Svg {...p}>
       <circle cx="19" cy="15" r="8" fill={C.violet} />
       <path d="M5 41c0-8.3 6.3-15 14-15s14 6.7 14 15z" fill={C.teal} />
-      <rect
-        x="27"
-        y="21"
-        width="15"
-        height="15"
-        rx="4"
-        fill={C.amber}
-        style={mul}
-      />
+      <rect x="27" y="21" width="15" height="15" rx="4" fill={C.amber} style={mul} />
     </Svg>
   ),
   design: (p) => (
@@ -321,40 +273,14 @@ const ICONS = {
   ),
   settingOut: (p) => (
     <Svg {...p}>
-      <circle
-        cx="24"
-        cy="24"
-        r="15.5"
-        fill="none"
-        stroke={C.teal}
-        strokeWidth="6.5"
-      />
-      <rect
-        x="21"
-        y="3"
-        width="6"
-        height="42"
-        rx="3"
-        fill={C.red}
-        style={mul}
-      />
-      <rect
-        x="3"
-        y="21"
-        width="42"
-        height="6"
-        rx="3"
-        fill={C.red}
-        style={mul}
-      />
+      <circle cx="24" cy="24" r="15.5" fill="none" stroke={C.teal} strokeWidth="6.5" />
+      <rect x="21" y="3" width="6" height="42" rx="3" fill={C.red} style={mul} />
+      <rect x="3" y="21" width="42" height="6" rx="3" fill={C.red} style={mul} />
     </Svg>
   ),
   qaqc: (p) => (
     <Svg {...p}>
-      <path
-        d="M24 4 40 10v12c0 11-7 18.5-16 22C15 40.5 8 33 8 22V10z"
-        fill={C.indigo}
-      />
+      <path d="M24 4 40 10v12c0 11-7 18.5-16 22C15 40.5 8 33 8 22V10z" fill={C.indigo} />
       <path d="M24 4 40 10v12c0 11-7 18.5-16 22z" fill={C.blue} style={mul} />
       <path
         d="M16 24l6 6 11-12"
@@ -378,15 +304,7 @@ const ICONS = {
   production: (p) => (
     <Svg {...p}>
       <path d="M5 41V22l10-7v7l10-7v7l10-7v26z" fill={C.teal} />
-      <rect
-        x="33"
-        y="7"
-        width="9"
-        height="34"
-        rx="2"
-        fill={C.orange}
-        style={mul}
-      />
+      <rect x="33" y="7" width="9" height="34" rx="2" fill={C.orange} style={mul} />
       <rect x="10" y="30" width="5" height="5" rx="1" fill={W} />
       <rect x="20" y="30" width="5" height="5" rx="1" fill={W} />
     </Svg>
@@ -394,24 +312,8 @@ const ICONS = {
   invoices: (p) => (
     <Svg {...p}>
       <path d="M9 5h28v38l-4.7-3-4.6 3-4.7-3-4.7 3-4.6-3L9 43z" fill={C.teal} />
-      <rect
-        x="15"
-        y="12"
-        width="16"
-        height="3"
-        rx="1.5"
-        fill={W}
-        opacity=".85"
-      />
-      <rect
-        x="15"
-        y="18"
-        width="11"
-        height="3"
-        rx="1.5"
-        fill={W}
-        opacity=".85"
-      />
+      <rect x="15" y="12" width="16" height="3" rx="1.5" fill={W} opacity=".85" />
+      <rect x="15" y="18" width="11" height="3" rx="1.5" fill={W} opacity=".85" />
       <circle cx="34" cy="31" r="9.5" fill={C.amber} style={mul} />
     </Svg>
   ),
@@ -428,25 +330,13 @@ const ICONS = {
       <circle cx="17" cy="15" r="7.5" fill={C.red} />
       <path d="M3 39c0-7.7 6.3-13 14-13s14 5.3 14 13z" fill={C.red} />
       <circle cx="31" cy="18" r="7.5" fill={C.sky} style={mul} />
-      <path
-        d="M17 42c0-7.7 6.3-13 14-13s14 5.3 14 13z"
-        fill={C.sky}
-        style={mul}
-      />
+      <path d="M17 42c0-7.7 6.3-13 14-13s14 5.3 14 13z" fill={C.sky} style={mul} />
     </Svg>
   ),
   activities: (p) => (
     <Svg {...p}>
       <rect x="6" y="7" width="36" height="34" rx="5" fill={C.green} />
-      <rect
-        x="6"
-        y="24"
-        width="36"
-        height="17"
-        rx="5"
-        fill={C.teal}
-        style={mul}
-      />
+      <rect x="6" y="24" width="36" height="17" rx="5" fill={C.teal} style={mul} />
       <path
         d="M12 16l3 3 5.5-6"
         stroke={W}
@@ -470,33 +360,9 @@ const ICONS = {
   templates: (p) => (
     <Svg {...p}>
       <rect x="14" y="4" width="25" height="31" rx="4" fill={C.sky} />
-      <rect
-        x="8"
-        y="12"
-        width="25"
-        height="32"
-        rx="4"
-        fill={C.red}
-        style={mul}
-      />
-      <rect
-        x="13"
-        y="20"
-        width="15"
-        height="3"
-        rx="1.5"
-        fill={W}
-        opacity=".9"
-      />
-      <rect
-        x="13"
-        y="26"
-        width="10"
-        height="3"
-        rx="1.5"
-        fill={W}
-        opacity=".9"
-      />
+      <rect x="8" y="12" width="25" height="32" rx="4" fill={C.red} style={mul} />
+      <rect x="13" y="20" width="15" height="3" rx="1.5" fill={W} opacity=".9" />
+      <rect x="13" y="26" width="10" height="3" rx="1.5" fill={W} opacity=".9" />
     </Svg>
   ),
   resources: (p) => (

@@ -25,9 +25,7 @@ export function useQuotationTemplates({ activeOnly = false } = {}) {
         setPage(data?.number ?? target);
       } catch (err) {
         setTemplates([]);
-        setError(
-          err instanceof ApiError ? err.message : "Could not load templates.",
-        );
+        setError(err instanceof ApiError ? err.message : "Could not load templates.");
       } finally {
         setLoading(false);
       }

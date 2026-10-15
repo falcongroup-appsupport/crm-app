@@ -47,9 +47,7 @@ export function Drawer({
                 <h2 className="font-display text-lg font-semibold text-ink-950 dark:text-white">
                   {title}
                 </h2>
-                {subtitle && (
-                  <p className="mt-0.5 text-sm text-ink-400">{subtitle}</p>
-                )}
+                {subtitle && <p className="mt-0.5 text-sm text-ink-400">{subtitle}</p>}
               </div>
               <button
                 onClick={onClose}

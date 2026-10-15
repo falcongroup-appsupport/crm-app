@@ -23,8 +23,7 @@ export function LoginForm() {
       navigate("/");
     } catch (err) {
       toast.error("Sign-in failed", {
-        description:
-          err instanceof ApiError ? err.message : "Please try again.",
+        description: err instanceof ApiError ? err.message : "Please try again.",
       });
     } finally {
       setSubmitting(false);
@@ -53,17 +52,12 @@ export function LoginForm() {
           placeholder="••••••••"
         />
       </div>
-      <Button
-        type="submit"
-        disabled={submitting}
-        className="w-full justify-center"
-      >
+      <Button type="submit" disabled={submitting} className="w-full justify-center">
         <LogIn className="h-4 w-4" />
         {submitting ? "Signing in…" : "Sign in"}
       </Button>
       <p className="text-center text-xs text-ink-400">
-        Auth isn't live on the backend yet — this screen is ready for when it
-        is.
+        Auth isn't live on the backend yet — this screen is ready for when it is.
       </p>
     </form>
   );

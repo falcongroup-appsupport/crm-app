@@ -33,24 +33,14 @@ export function ExistingEnquirySummary({ enquiry, onChange }) {
 
       <div className={GRID}>
         <ReadField label="Company name" value={enquiry.companyName} />
-        <ReadField
-          label="Customer / Client name"
-          value={enquiry.customerName}
-        />
+        <ReadField label="Customer / Client name" value={enquiry.customerName} />
         <ReadField label="Contact person" value={enquiry.contactPerson} />
         <ReadField label="Contact number" value={enquiry.contactNumber} />
         <ReadField label="Email" value={enquiry.customerEmail} />
-        <ReadField
-          label="Enquiry date"
-          value={formatDate(enquiry.dateOfEnquiry)}
-        />
+        <ReadField label="Enquiry date" value={formatDate(enquiry.dateOfEnquiry)} />
         <ReadField
           label="Submission deadline"
-          value={
-            enquiry.submissionDeadline
-              ? formatDate(enquiry.submissionDeadline)
-              : ""
-          }
+          value={enquiry.submissionDeadline ? formatDate(enquiry.submissionDeadline) : ""}
         />
         <ReadField
           label="Enquiry lead"

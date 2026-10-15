@@ -6,12 +6,7 @@ import { cn } from "../../../utils/cn";
 import { ToastContext } from "./toastContext";
 
 const MAX_VISIBLE = 4;
-const DEFAULT_DURATION = {
-  success: 4000,
-  info: 4500,
-  warning: 6000,
-  error: 8000,
-};
+const DEFAULT_DURATION = { success: 4000, info: 4500, warning: 6000, error: 8000 };
 
 const VARIANTS = {
   success: {
@@ -22,14 +17,12 @@ const VARIANTS = {
   },
   error: {
     icon: XCircle,
-    iconClass:
-      "text-signal-600 bg-signal-50 dark:text-signal-400 dark:bg-signal-500/10",
+    iconClass: "text-signal-600 bg-signal-50 dark:text-signal-400 dark:bg-signal-500/10",
     bar: "bg-signal-500",
   },
   warning: {
     icon: AlertTriangle,
-    iconClass:
-      "text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-500/10",
+    iconClass: "text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-500/10",
     bar: "bg-amber-500",
   },
   info: {
@@ -60,10 +53,7 @@ function ToastItem({ toast, onDismiss }) {
   const pause = () => {
     if (!toast.duration) return;
     clearTimeout(timer.current);
-    remaining.current = Math.max(
-      0,
-      remaining.current - (Date.now() - startedAt.current),
-    );
+    remaining.current = Math.max(0, remaining.current - (Date.now() - startedAt.current));
     setPaused(true);
   };
   const resume = () => {
@@ -101,14 +91,14 @@ function ToastItem({ toast, onDismiss }) {
             iconClass,
           )}
         >
-          <Icon className="h-[18px] w-[18px]" />
+          <Icon className="h-5 w-5" />
         </span>
         <div className="min-w-0 flex-1 pt-0.5">
           <p className="text-sm font-semibold text-ink-950 dark:text-white">
             {toast.title}
           </p>
           {toast.description && (
-            <p className="mt-0.5 break-words text-sm leading-snug text-ink-500 dark:text-ink-400">
+            <p className="mt-0.5 wrap-break-word text-sm leading-snug text-ink-500 dark:text-ink-400">
               {toast.description}
             </p>
           )}
@@ -138,7 +128,7 @@ function ToastItem({ toast, onDismiss }) {
         <span
           aria-hidden="true"
           className={cn(
-            "absolute bottom-0 left-0 h-[3px] w-full origin-left opacity-70",
+            "absolute bottom-0 left-0 h-0.75 w-full origin-left opacity-70",
             bar,
           )}
           style={{
@@ -204,7 +194,7 @@ export function ToastProvider({ children }) {
         <ol
           aria-live="polite"
           aria-label="Notifications"
-          className="pointer-events-none fixed inset-x-3 bottom-3 z-[100] flex flex-col gap-2.5 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[380px]"
+          className="pointer-events-none fixed inset-x-3 bottom-3 z-100 flex flex-col gap-2.5 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-95"
         >
           <AnimatePresence initial={false}>
             {toasts.map((t) => (

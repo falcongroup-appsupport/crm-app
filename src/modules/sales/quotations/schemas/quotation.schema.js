@@ -1,13 +1,27 @@
 import {
+  CURRENCIES,
   DEFAULT_DURATION_DESCRIPTIONS,
   DEFAULT_VAT_PERCENTAGE,
+  TEMPLATE_MAX_CHARS,
 } from "../constants/quotationConstants";
+import { phoneError, todayLocal } from "../../../enquiries/schemas/enquiry.schema";
 
 const str = (v) => (v === null || v === undefined ? "" : v);
+/** Always a string — numbers from the API (validity 30, duration 2.00) included. */
+const text = (v) => (v === null || v === undefined ? "" : String(v));
+
+/**
+ * A duration row is "in use" once it has a duration or remarks, or a
+ * description the user typed. The pre-filled template rows (NOC / Authority
+ * Permits, Mobilization, Field Works) left untouched are skipped on save.
+ */
+export function durationInUse(d) {
+  if (text(d.duration).trim() !== "" || text(d.remarks).trim() !== "") return true;
+  const desc = text(d.description).trim();
+  return desc !== "" && !DEFAULT_DURATION_DESCRIPTIONS.includes(desc);
+}
 const num = (v) =>
-  v === "" || v === null || v === undefined || Number.isNaN(Number(v))
-    ? 0
-    : Number(v);
+  v === "" || v === null || v === undefined || Number.isNaN(Number(v)) ? 0 : Number(v);
 const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 
 export const emptyItem = () => ({
@@ -61,10 +75,9 @@ export function computeTotals(items, discount) {
 
 export function computeTotalDays(durations) {
   return round2(
-    durations.reduce(
-      (s, d) => s + num(d.duration) * (d.unit === "Weeks" ? 7 : 1),
-      0,
-    ),
+    durations
+      .filter(durationInUse)
+      .reduce((s, d) => s + num(d.duration) * (d.unit === "Weeks" ? 7 : 1), 0),
   );
 }
 
@@ -87,10 +100,11 @@ export function emptyQuotation(enquiry) {
 
   return {
     quotationReference: "",
-    quotationDate: new Date().toISOString().slice(0, 10),
+    quotationDate: todayLocal(),
     quotationValidity: 30,
     currency: "AED",
-    customerName: enquiry?.companyName || enquiry?.customerName || "",
+    // the quotation is addressed to the company, attention of the contact person
+    customerName: enquiry?.companyName || "",
     attentionTo: enquiry?.contactPerson || enquiry?.customerName || "",
     emailId: str(enquiry?.customerEmail),
     contactNumber: str(enquiry?.contactNumber),
@@ -103,6 +117,7 @@ export function emptyQuotation(enquiry) {
     detailedPaymentTerms: "",
     internalRemarks: "",
     termsAndConditions: "",
+    templateContents: "", // rich-text (HTML) template sections (scope, general considerations, deliverables, equipment)
   };
 }
 
@@ -149,6 +164,7 @@ export function normalizeQuotation(q) {
     detailedPaymentTerms: str(q?.detailedPaymentTerms),
     internalRemarks: str(q?.internalRemarks),
     termsAndConditions: str(q?.termsAndConditions),
+    templateContents: str(q?.templateContents),
   };
 }
 
@@ -172,7 +188,7 @@ export function buildQuotationPayload(form, enquiryId) {
     };
   });
   const totals = computeTotals(form.items, form.discount);
-  const durations = form.durations.map((d, i) => ({
+  const durations = form.durations.filter(durationInUse).map((d, i) => ({
     ...(d.id !== undefined && d.id !== null ? { id: d.id } : {}),
     slNo: i + 1,
     description: d.description,
@@ -183,7 +199,9 @@ export function buildQuotationPayload(form, enquiryId) {
 
   return {
     enquiryId: Number(enquiryId),
-    quotationReference: form.quotationReference,
+    // the quotation number is the reference — the field is no longer entered by hand;
+    // an existing value is sent back unchanged so old records keep it
+    quotationReference: form.quotationReference || form.quotationNo || null,
     quotationDate: form.quotationDate,
     quotationValidity: num(form.quotationValidity),
     currency: form.currency,
@@ -200,10 +218,134 @@ export function buildQuotationPayload(form, enquiryId) {
     estimatedTotalDays: computeTotalDays(form.durations),
     items,
     ...totals,
-    paymentTermId:
-      form.paymentTermId === "" ? null : Number(form.paymentTermId),
+    paymentTermId: form.paymentTermId === "" ? null : Number(form.paymentTermId),
     detailedPaymentTerms: form.detailedPaymentTerms,
     internalRemarks: form.internalRemarks,
     termsAndConditions: form.termsAndConditions,
+    templateContents: form.templateContents,
   };
+}
+
+// ---- validity ---------------------------------------------------------------
+
+/** quotationDate + quotationValidity days → "YYYY-MM-DD" (or null). */
+export function validUntil(quotationDate, validityDays) {
+  if (
+    !quotationDate ||
+    validityDays === "" ||
+    validityDays === null ||
+    validityDays === undefined
+  )
+    return null;
+  const d = new Date(`${String(quotationDate).slice(0, 10)}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return null;
+  d.setDate(d.getDate() + Number(validityDays));
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/** Days until a quotation expires (negative = expired). */
+export function daysLeft(dateStr) {
+  if (!dateStr) return null;
+  const today = new Date(`${todayLocal()}T00:00:00`);
+  return Math.round((new Date(`${dateStr}T00:00:00`) - today) / 86_400_000);
+}
+
+// ---- validation -------------------------------------------------------------
+
+const ADDRESS_LABELS = [
+  ["emirate", "Emirate"],
+  ["city", "City"],
+  ["officeNumber", "Office number"],
+  ["buildingCommunityName", "Building / community"],
+  ["streetAddress", "Street address"],
+  ["area", "Area"],
+  ["poBox", "PO box"],
+  ["additionalLandmarks", "Additional landmarks"],
+];
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const blank = (v) => text(v).trim() === "";
+const isNum = (v) => !blank(v) && Number.isFinite(Number(v));
+const tooLong = (v, max) => text(v).trim().length > max;
+
+/**
+ * Validates the quotation form (POST and PUT). Returns { [key]: message };
+ * keys: quotationDate, customerAddress.city, emailId, items.0.rate, durations.1.duration, discount…
+ */
+export function validateQuotation(form) {
+  const e = {};
+
+  if (blank(form.quotationDate)) e.quotationDate = "Quotation date is required";
+  else if (Number.isNaN(Date.parse(form.quotationDate)))
+    e.quotationDate = "Enter a valid date";
+  if (blank(form.quotationValidity)) e.quotationValidity = "Validity is required";
+  else if (
+    !Number.isInteger(Number(form.quotationValidity)) ||
+    Number(form.quotationValidity) < 1 ||
+    Number(form.quotationValidity) > 365
+  )
+    e.quotationValidity = "Enter whole days between 1 and 365";
+  if (!CURRENCIES.includes(form.currency)) e.currency = "Pick a currency";
+
+  if (blank(form.customerName)) e.customerName = "Customer / client is required";
+  else if (tooLong(form.customerName, 150))
+    e.customerName = "Keep it under 150 characters";
+  if (tooLong(form.attentionTo, 100)) e.attentionTo = "Keep it under 100 characters";
+  if (!blank(form.emailId) && !EMAIL_RE.test(text(form.emailId).trim()))
+    e.emailId = "Enter a valid email address";
+  const phone = phoneError(form.contactNumber);
+  if (phone) e.contactNumber = phone;
+  if (blank(form.projectName)) e.projectName = "Project name is required";
+  else if (tooLong(form.projectName, 255)) e.projectName = "Keep it under 255 characters";
+
+  const addr = form.customerAddress ?? {};
+  for (const [key, label] of ADDRESS_LABELS) {
+    if (blank(addr[key])) e[`customerAddress.${key}`] = `${label} is required`;
+    else if (tooLong(addr[key], 255))
+      e[`customerAddress.${key}`] = "Keep it under 255 characters";
+  }
+
+  const items = form.items ?? [];
+  if (!items.length) e.items = "Add at least one item";
+  items.forEach((it, i) => {
+    const k = `items.${i}`;
+    if (blank(it.activityId)) e[`${k}.activityId`] = "Select an activity";
+    if (blank(it.itemDescription)) e[`${k}.itemDescription`] = "Description is required";
+    if (blank(it.unit)) e[`${k}.unit`] = "Select a unit";
+    if (!isNum(it.quantity) || Number(it.quantity) <= 0)
+      e[`${k}.quantity`] = "Quantity must be greater than 0";
+    if (!isNum(it.rate) || Number(it.rate) < 0) e[`${k}.rate`] = "Rate must be 0 or more";
+    if (
+      !isNum(it.vatPercentage) ||
+      Number(it.vatPercentage) < 0 ||
+      Number(it.vatPercentage) > 100
+    )
+      e[`${k}.vatPercentage`] = "VAT must be 0–100%";
+  });
+  if (items.length && computeTotals(items, 0).subtotal <= 0)
+    e.items = "The quotation total can't be zero — add rates";
+
+  (form.durations ?? []).forEach((d, i) => {
+    if (!durationInUse(d)) return; // empty rows and untouched template rows are ignored
+    if (blank(d.description)) e[`durations.${i}.description`] = "Description is required";
+    if (!isNum(d.duration) || Number(d.duration) <= 0)
+      e[`durations.${i}.duration`] = "Duration must be greater than 0";
+  });
+
+  if (!blank(form.discount)) {
+    const { subtotal, salesTax } = computeTotals(items, 0);
+    if (!isNum(form.discount) || Number(form.discount) < 0)
+      e.discount = "Discount must be 0 or more";
+    else if (Number(form.discount) > subtotal + salesTax)
+      e.discount = "Discount can't exceed the total";
+  }
+  if (tooLong(form.detailedPaymentTerms, 2000))
+    e.detailedPaymentTerms = "Keep it under 2000 characters";
+  if (tooLong(form.termsAndConditions, 4000))
+    e.termsAndConditions = "Keep it under 4000 characters";
+  if (tooLong(form.templateContents, TEMPLATE_MAX_CHARS))
+    e.templateContents = "The template content is too large — use smaller pictures";
+  if (tooLong(form.internalRemarks, 2000))
+    e.internalRemarks = "Keep it under 2000 characters";
+  return e;
 }

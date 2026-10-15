@@ -21,8 +21,8 @@ export default function ComingSoonPage({ title }) {
         {resolvedTitle} is next up
       </h2>
       <p className="mt-1 max-w-xs text-sm text-ink-400">
-        We're building this system module by module — Enquiry Registration and
-        Internal Requests are live, this one follows the same doc.
+        We're building this system module by module — Enquiry Registration and Internal
+        Requests are live, this one follows the same doc.
       </p>
     </div>
   );

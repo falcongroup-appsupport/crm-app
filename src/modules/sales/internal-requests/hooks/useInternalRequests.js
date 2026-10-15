@@ -44,9 +44,7 @@ export function useInternalRequests() {
   }, []);
 
   const updateRequest = useCallback((id, patch) => {
-    setRequests((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, ...patch } : r)),
-    );
+    setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
   }, []);
 
   const cancelRequest = useCallback((id, reason) => {

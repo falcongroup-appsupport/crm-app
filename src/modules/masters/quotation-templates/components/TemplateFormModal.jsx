@@ -5,6 +5,7 @@ import { Button } from "../../../../shared/components/ui/Button";
 import { FieldLabel, Input } from "../../../../shared/components/forms";
 import { ApiError } from "../../../../shared/api/axiosInstance";
 import { useToast } from "../../../../shared/components/feedback/toast/useToast";
+import { templateFileName } from "../api/quotationTemplate.api";
 
 /** Create (template = null) or edit a quotation template. On edit the file is optional. */
 export function TemplateFormModal({ open, onClose, template, onSubmit }) {
@@ -34,8 +35,7 @@ export function TemplateFormModal({ open, onClose, template, onSubmit }) {
       onClose();
     } catch (err) {
       toast.error("Couldn't save the template", {
-        description:
-          err instanceof ApiError ? err.message : "Please try again.",
+        description: err instanceof ApiError ? err.message : "Please try again.",
       });
     } finally {
       setSaving(false);
@@ -74,36 +74,37 @@ export function TemplateFormModal({ open, onClose, template, onSubmit }) {
           />
         </div>
         <div>
-          <FieldLabel required={!isEdit}>File (PDF, DOCX…)</FieldLabel>
+          <FieldLabel required={!isEdit}>Word file (.docx)</FieldLabel>
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
             className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-ink-200 bg-ink-50 px-4 py-4 text-sm text-ink-500 transition-colors hover:border-signal-300 hover:text-signal-600 dark:border-ink-700 dark:bg-ink-800 dark:text-ink-400"
           >
-            {file ? (
-              <FileText className="h-4 w-4" />
-            ) : (
-              <Upload className="h-4 w-4" />
-            )}
-            {file
-              ? file.name
-              : isEdit
-                ? "Replace file (optional)"
-                : "Choose a file"}
+            {file ? <FileText className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
+            {file ? file.name : isEdit ? "Replace file (optional)" : "Choose a file"}
           </button>
           <input
             ref={inputRef}
             type="file"
+            accept=".docx,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf"
             className="hidden"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            onChange={(e) => {
+              setFile(e.target.files?.[0] ?? null);
+              e.target.value = "";
+            }}
           />
-          {isEdit &&
-            !file &&
-            (template?.fileName || template?.originalFileName) && (
-              <p className="mt-1.5 text-xs text-ink-400">
-                Current file: {template.fileName ?? template.originalFileName}
-              </p>
-            )}
+          {file && !/\.docx$/i.test(file.name) ? (
+            <p className="mt-1.5 text-xs text-amber-600 dark:text-amber-400">
+              Only Word (.docx) templates can be loaded into a quotation. This file will
+              be kept for reference only.
+            </p>
+          ) : (
+            <p className="mt-1.5 text-xs text-ink-400">
+              {isEdit && !file && template?.filePath
+                ? `Current file: ${templateFileName(template)}`
+                : "Use the Word version of the quotation — its four template sections are loaded into the editor."}
+            </p>
+          )}
         </div>
       </div>
     </Modal>

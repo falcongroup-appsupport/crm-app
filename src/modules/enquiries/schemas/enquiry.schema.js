@@ -166,14 +166,12 @@ const PROJECT_STATUS_VALUES = PROJECT_STATUSES.map((s) => s.value);
 
 const isBlank = (v) => str(v).trim() === "";
 const isValidDate = (v) => DATE_RE.test(v) && !Number.isNaN(Date.parse(v));
-const isValidDateTime = (v) =>
-  DATETIME_RE.test(v) && !Number.isNaN(Date.parse(v));
+const isValidDateTime = (v) => DATETIME_RE.test(v) && !Number.isNaN(Date.parse(v));
 
 export function phoneError(value, { required = false } = {}) {
   const v = str(value).trim();
   if (!v) return required ? "Contact number is required" : null;
-  if (!PHONE_CHARS_RE.test(v))
-    return "Use digits only (with an optional leading +)";
+  if (!PHONE_CHARS_RE.test(v)) return "Use digits only (with an optional leading +)";
   const digits = v.replace(/\D/g, "").length;
   if (digits < 7 || digits > 15) return "Enter 7–15 digits";
   return null;
@@ -193,8 +191,7 @@ function urlError(value) {
 }
 
 function maxLen(errors, key, value, max) {
-  if (str(value).trim().length > max)
-    errors[key] = `Keep this under ${max} characters`;
+  if (str(value).trim().length > max) errors[key] = `Keep this under ${max} characters`;
 }
 
 const MB = 1024 * 1024;
@@ -215,8 +212,7 @@ export function validateEnquiry(
   // customer / client
   if (isBlank(form.companyName)) e.companyName = "Company name is required";
   else maxLen(e, "companyName", form.companyName, LIMITS.companyName);
-  if (isBlank(form.contactPerson))
-    e.contactPerson = "Contact person is required";
+  if (isBlank(form.contactPerson)) e.contactPerson = "Contact person is required";
   else maxLen(e, "contactPerson", form.contactPerson, LIMITS.contactPerson);
   const phone = phoneError(form.contactNumber);
   if (phone) e.contactNumber = phone;
@@ -228,8 +224,7 @@ export function validateEnquiry(
 
   // enquiry details
   if (isBlank(form.dateOfEnquiry)) e.dateOfEnquiry = "Enquiry date is required";
-  else if (!isValidDate(form.dateOfEnquiry))
-    e.dateOfEnquiry = "Enter a valid date";
+  else if (!isValidDate(form.dateOfEnquiry)) e.dateOfEnquiry = "Enter a valid date";
   // future check only on create — an existing record shouldn't block unrelated edits
   else if (mode === "create" && form.dateOfEnquiry > today)
     e.dateOfEnquiry = "Enquiry date can't be in the future";
@@ -262,8 +257,7 @@ export function validateEnquiry(
   if (projects.length === 0) e.projects = "Add at least one project";
   projects.forEach((p, i) => {
     const k = `projects.${i}`;
-    if (isBlank(p.projectName))
-      e[`${k}.projectName`] = "Project name is required";
+    if (isBlank(p.projectName)) e[`${k}.projectName`] = "Project name is required";
     else maxLen(e, `${k}.projectName`, p.projectName, LIMITS.projectName);
     if (isBlank(p.country)) e[`${k}.country`] = "Country is required";
     if (isUae(p.country) && isBlank(p.emirate))
@@ -281,8 +275,7 @@ export function validateEnquiry(
         e[`${sk}.quantity`] = "Quantity must be greater than 0";
       else if (q > 1_000_000_000) e[`${sk}.quantity`] = "Quantity is too large";
       if (str(s.remarks).trim().length > LIMITS.scopeRemarks)
-        e[`${sk}.remarks`] =
-          `Keep remarks under ${LIMITS.scopeRemarks} characters`;
+        e[`${sk}.remarks`] = `Keep remarks under ${LIMITS.scopeRemarks} characters`;
     });
   });
 
@@ -303,28 +296,15 @@ export function validateEnquiry(
     else if (!isValidDateTime(sv.siteVisitDate))
       e["siteVisit.siteVisitDate"] = "Enter a valid date & time";
     else if (mode === "create" && sv.siteVisitDate.slice(0, 10) < today)
-      e["siteVisit.siteVisitDate"] =
-        "Site visit can't be scheduled in the past";
+      e["siteVisit.siteVisitDate"] = "Site visit can't be scheduled in the past";
     if (isBlank(sv.contactPerson))
       e["siteVisit.contactPerson"] = "Site contact person is required";
-    else
-      maxLen(
-        e,
-        "siteVisit.contactPerson",
-        sv.contactPerson,
-        LIMITS.contactPerson,
-      );
+    else maxLen(e, "siteVisit.contactPerson", sv.contactPerson, LIMITS.contactPerson);
     const svPhone = phoneError(sv.contactNumber, { required: true });
     if (svPhone) e["siteVisit.contactNumber"] = svPhone;
     const link = urlError(sv.googleMapLink);
     if (link) e["siteVisit.googleMapLink"] = link;
-    else
-      maxLen(
-        e,
-        "siteVisit.googleMapLink",
-        sv.googleMapLink,
-        LIMITS.googleMapLink,
-      );
+    else maxLen(e, "siteVisit.googleMapLink", sv.googleMapLink, LIMITS.googleMapLink);
   }
 
   // uploads — catches oversized files here instead of a server 413
@@ -351,8 +331,7 @@ export function validateEnquiry(
 // Rows without an id are new and are sent in full.
 
 const t = (v) => str(v).trim();
-const num = (v) =>
-  v === "" || v === null || v === undefined ? "" : String(Number(v));
+const num = (v) => (v === "" || v === null || v === undefined ? "" : String(Number(v)));
 
 const EDIT_SCALAR_KEYS = [
   "companyName",
@@ -380,9 +359,7 @@ const SV_KEYS = [
 const sameScopeValue = (key, a, b) =>
   key === "quantity" ? num(a) === num(b) : t(a) === t(b);
 const sameProjectValue = (key, a, b) =>
-  key === "country"
-    ? (isUae(a) ? UAE : t(a)) === (isUae(b) ? UAE : t(b))
-    : t(a) === t(b);
+  key === "country" ? (isUae(a) ? UAE : t(a)) === (isUae(b) ? UAE : t(b)) : t(a) === t(b);
 
 const fullScope = (s) => ({
   activityId: s.activityId,
@@ -401,8 +378,7 @@ function diffSiteVisit(orig = {}, next = {}) {
   const wasOn = Boolean(orig.siteVisitRequired);
   const isOn = Boolean(next.siteVisitRequired);
   if (!wasOn && !isOn) return null;
-  if (wasOn && !isOn)
-    return { siteVisitRequired: false, gatePassRequired: false };
+  if (wasOn && !isOn) return { siteVisitRequired: false, gatePassRequired: false };
   if (!wasOn && isOn) {
     const out = {
       siteVisitRequired: true,
@@ -445,8 +421,7 @@ export function diffEnquiry(original, form) {
       return;
     }
     const row = {};
-    for (const k of PROJECT_KEYS)
-      if (!sameProjectValue(k, orig[k], p[k])) row[k] = p[k];
+    for (const k of PROJECT_KEYS) if (!sameProjectValue(k, orig[k], p[k])) row[k] = p[k];
 
     const scopes = [];
     (p.scopeOfServices ?? []).forEach((s, si) => {
@@ -456,11 +431,9 @@ export function diffEnquiry(original, form) {
         return;
       }
       const sc = {};
-      for (const k of SCOPE_KEYS)
-        if (!sameScopeValue(k, os[k], s[k])) sc[k] = s[k];
+      for (const k of SCOPE_KEYS) if (!sameScopeValue(k, os[k], s[k])) sc[k] = s[k];
       if (!Object.keys(sc).length) return;
-      if (s.id == null)
-        unidentified.push(`Project ${pi + 1}, activity row ${si + 1}`);
+      if (s.id == null) unidentified.push(`Project ${pi + 1}, activity row ${si + 1}`);
       else scopes.push({ id: s.id, ...sc });
     });
 

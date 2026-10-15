@@ -30,7 +30,7 @@ export default function EnquiryListPage() {
 
   const [query, setQuery] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [activeTasks, setActiveTasks] = useState([]);
+  const [activeTasks, setActiveTasks] = useState(["pending"]);
   const [updatingId, setUpdatingId] = useState(null);
   const debouncedQuery = useDebounce(query, 250);
 
@@ -116,9 +116,7 @@ export default function EnquiryListPage() {
         onNew={() => navigate("/enquiries/new")}
         onToggleFilters={() => setFiltersOpen(true)}
         filtersOpen={filtersOpen}
-        activeFilterCount={
-          activeTasks.includes("viewAll") ? 0 : activeTasks.length
-        }
+        activeFilterCount={activeTasks.includes("viewAll") ? 0 : activeTasks.length}
       />
 
       {loading ? (
@@ -138,9 +136,7 @@ export default function EnquiryListPage() {
             enquiries={filtered}
             onRowClick={(e) => navigate(`/enquiries/${e.id}`)}
             onEdit={(e) => navigate(`/enquiries/${e.id}/edit`)}
-            onStatusChange={(enquiry, status) =>
-              setPendingStatus({ enquiry, status })
-            }
+            onStatusChange={(enquiry, status) => setPendingStatus({ enquiry, status })}
             updatingId={updatingId}
           />
           <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
@@ -152,9 +148,7 @@ export default function EnquiryListPage() {
         tone="primary"
         title="Change enquiry status?"
         confirmLabel="Change status"
-        busy={
-          Boolean(pendingStatus) && updatingId === pendingStatus?.enquiry.id
-        }
+        busy={Boolean(pendingStatus) && updatingId === pendingStatus?.enquiry.id}
         description={
           pendingStatus && (
             <div className="space-y-3">

@@ -15,8 +15,6 @@ const COLS = {
 
 export function FormRow({ children, cols = "auto", className }) {
   return (
-    <div className={cn("grid gap-4", COLS[cols] ?? COLS.auto, className)}>
-      {children}
-    </div>
+    <div className={cn("grid gap-4", COLS[cols] ?? COLS.auto, className)}>{children}</div>
   );
 }

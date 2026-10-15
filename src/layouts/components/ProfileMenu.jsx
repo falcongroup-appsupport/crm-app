@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { User, Settings, LogOut, ChevronDown } from "lucide-react";
 import { initials } from "../../shared/utils/initials";
 
-const NAME = "Ansil Rahman K";
+const NAME = "Ansil Rahman";
 const ROLE = "Frontend Developer";
 
 export function ProfileMenu() {
@@ -27,12 +27,7 @@ export function ProfileMenu() {
   const items = [
     { label: "Profile", icon: User, onClick: () => setOpen(false) },
     { label: "Settings", icon: Settings, onClick: () => setOpen(false) },
-    {
-      label: "Log out",
-      icon: LogOut,
-      danger: true,
-      onClick: () => setOpen(false),
-    },
+    { label: "Log out", icon: LogOut, danger: true, onClick: () => setOpen(false) },
   ];
 
   return (

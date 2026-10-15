@@ -12,8 +12,7 @@ export default function DashboardPage() {
 
   const total = enquiries.length;
   const pending = enquiries.filter(
-    (e) =>
-      !["QUOTATION_DELIVERED", "SALES_ORDER_CREATED"].includes(e.currentStatus),
+    (e) => !["QUOTATION_DELIVERED", "SALES_ORDER_CREATED"].includes(e.currentStatus),
   ).length;
   const withDeadline = enquiries.filter((e) => e.submissionDeadline).length;
   const salesOrders = enquiries.filter(
@@ -36,16 +35,8 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Total enquiries" value={total} icon={Inbox} />
         <StatCard label="Pending" value={pending} icon={Clock} accent />
-        <StatCard
-          label="With a deadline"
-          value={withDeadline}
-          icon={CalendarClock}
-        />
-        <StatCard
-          label="Sales orders created"
-          value={salesOrders}
-          icon={CircleCheck}
-        />
+        <StatCard label="With a deadline" value={withDeadline} icon={CalendarClock} />
+        <StatCard label="Sales orders created" value={salesOrders} icon={CircleCheck} />
       </div>
 
       <div className="rounded-xl bg-white ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
@@ -62,9 +53,7 @@ export default function DashboardPage() {
           </Link>
         </div>
         {enquiries.length === 0 && (
-          <p className="px-5 py-8 text-center text-sm text-ink-400">
-            No enquiries yet.
-          </p>
+          <p className="px-5 py-8 text-center text-sm text-ink-400">No enquiries yet.</p>
         )}
         <ul className="divide-y divide-ink-50 dark:divide-ink-800">
           {enquiries.slice(0, 6).map((e) => (
@@ -80,9 +69,7 @@ export default function DashboardPage() {
                     · {e.contactPerson || e.customerName}
                   </span>
                 </p>
-                <p className="truncate font-mono text-xs text-ink-400">
-                  {e.enquiryNo}
-                </p>
+                <p className="truncate font-mono text-xs text-ink-400">{e.enquiryNo}</p>
               </div>
               <div className="flex shrink-0 items-center gap-4">
                 <span className="hidden text-xs text-ink-400 md:block">

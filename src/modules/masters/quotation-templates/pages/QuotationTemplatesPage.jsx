@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Download, Eye, FileText, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "../../../../shared/components/ui/Button";
 import { Badge } from "../../../../shared/components/ui/Badge";
 import { Toggle } from "../../../../shared/components/forms/Toggle";
@@ -12,6 +12,16 @@ import { formatDate } from "../../../../shared/utils";
 import { useQuotationTemplates } from "../hooks/useQuotationTemplates";
 import { useToast } from "../../../../shared/components/feedback/toast/useToast";
 import { TemplateFormModal } from "../components/TemplateFormModal";
+import { TemplateFileViewer } from "../components/TemplateFileViewer";
+import { useTemplateFile } from "../hooks/useTemplateFile";
+import {
+  isWordTemplate,
+  templateFileExt,
+  templateFileName,
+} from "../api/quotationTemplate.api";
+
+const ICON_BTN =
+  "rounded-md p-1.5 text-ink-400 hover:bg-ink-100 hover:text-ink-900 disabled:opacity-40 dark:hover:bg-ink-800 dark:hover:text-white";
 
 export default function QuotationTemplatesPage() {
   const [activeOnly, setActiveOnly] = useState(false);
@@ -29,6 +39,12 @@ export default function QuotationTemplatesPage() {
   const [editing, setEditing] = useState(null); // null | "new" | template
   const [pendingDelete, setPendingDelete] = useState(null);
   const toast = useToast();
+  const file = useTemplateFile({
+    onError: (t, err) =>
+      toast.error(`Couldn't open the file for “${t.name}”`, {
+        description: err?.message || "The file request failed.",
+      }),
+  });
 
   return (
     <div className="space-y-4">
@@ -38,7 +54,8 @@ export default function QuotationTemplatesPage() {
             Quotation templates
           </h1>
           <p className="mt-1 text-sm text-ink-400">
-            Document templates used when issuing quotations.
+            Word (.docx) templates load into the quotation editor; other files are kept
+            for reference.
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -66,20 +83,17 @@ export default function QuotationTemplatesPage() {
       ) : templates.length === 0 ? (
         <EmptyState
           title="No templates yet"
-          description="Upload a PDF or DOCX to create the first one."
+          description="Upload a Word (.docx) quotation to create the first one."
           actionLabel="New template"
           onAction={() => setEditing("new")}
         />
       ) : (
-        <div className="overflow-hidden rounded-xl bg-white ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
-          <table className="w-full text-left text-sm">
+        <div className="overflow-x-auto rounded-xl bg-white ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800">
+          <table className="w-full min-w-[760px] text-left text-sm">
             <thead>
               <tr className="border-b border-ink-100 text-xs text-ink-400 dark:border-ink-800">
-                {["Name", "File", "Status", "Created", ""].map((c) => (
-                  <th
-                    key={c}
-                    className="whitespace-nowrap px-5 py-3 font-medium"
-                  >
+                {["Name", "File", "Status", "Uploaded", "Modified", ""].map((c) => (
+                  <th key={c} className="whitespace-nowrap px-5 py-3 font-medium">
                     {c}
                   </th>
                 ))}
@@ -94,8 +108,37 @@ export default function QuotationTemplatesPage() {
                   <td className="px-5 py-3.5 font-medium text-ink-900 dark:text-ink-50">
                     {t.name}
                   </td>
-                  <td className="px-5 py-3.5 text-ink-600 dark:text-ink-300">
-                    {t.fileName ?? t.originalFileName ?? "—"}
+                  <td className="max-w-[22rem] px-5 py-3.5">
+                    {t.filePath ? (
+                      <button
+                        type="button"
+                        onClick={() => file.view(t)}
+                        disabled={file.busyId === t.id}
+                        className="group flex min-w-0 items-center gap-2 text-left"
+                        title="View file"
+                      >
+                        {file.busyId === t.id ? (
+                          <Loader2 className="h-4 w-4 shrink-0 animate-spin text-ink-400" />
+                        ) : (
+                          <FileText className="h-4 w-4 shrink-0 text-ink-400" />
+                        )}
+                        <span className="truncate text-ink-700 group-hover:text-signal-600 group-hover:underline dark:text-ink-200">
+                          {templateFileName(t)}
+                        </span>
+                        <Badge
+                          className="shrink-0 px-1.5 py-0 text-[10px]"
+                          tone={
+                            isWordTemplate(t)
+                              ? "bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:ring-blue-500/30"
+                              : undefined
+                          }
+                        >
+                          {templateFileExt(t).toUpperCase() || "FILE"}
+                        </Badge>
+                      </button>
+                    ) : (
+                      <span className="text-ink-400">—</span>
+                    )}
                   </td>
                   <td className="px-5 py-3.5">
                     {t.active === undefined ? (
@@ -109,10 +152,31 @@ export default function QuotationTemplatesPage() {
                     )}
                   </td>
                   <td className="whitespace-nowrap px-5 py-3.5 text-ink-500">
-                    {formatDate(t.createdAt)}
+                    {formatDate(t.uploadedAt ?? t.createdAt)}
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-3.5 text-ink-500">
+                    {formatDate(t.modifiedAt ?? t.updatedAt)}
                   </td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => file.view(t)}
+                        disabled={!t.filePath || file.busyId === t.id}
+                        className={ICON_BTN}
+                        aria-label={`View ${t.name}`}
+                        title="View"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => file.download(t)}
+                        disabled={!t.filePath || file.busyId === t.id}
+                        className={ICON_BTN}
+                        aria-label={`Download ${t.name}`}
+                        title="Download"
+                      >
+                        <Download className="h-4 w-4" />
+                      </button>
                       <button
                         onClick={() => setEditing(t)}
                         className="rounded-md p-1.5 text-ink-400 hover:bg-ink-100 hover:text-ink-900 dark:hover:bg-ink-800 dark:hover:text-white"
@@ -140,29 +204,29 @@ export default function QuotationTemplatesPage() {
 
       <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
 
+      <TemplateFileViewer
+        preview={file.preview}
+        onClose={file.close}
+        onDownload={file.save}
+      />
+
       <TemplateFormModal
         open={editing !== null}
         onClose={() => setEditing(null)}
         template={editing && editing !== "new" ? editing : null}
-        onSubmit={(data) =>
-          editing === "new" ? create(data) : update(editing.id, data)
-        }
+        onSubmit={(data) => (editing === "new" ? create(data) : update(editing.id, data))}
       />
 
       <ConfirmDialog
         open={Boolean(pendingDelete)}
         title="Delete this template?"
-        description={
-          pendingDelete ? `“${pendingDelete.name}” will be removed.` : ""
-        }
+        description={pendingDelete ? `“${pendingDelete.name}” will be removed.` : ""}
         confirmLabel="Delete"
         onCancel={() => setPendingDelete(null)}
         onConfirm={async () => {
           try {
             await remove(pendingDelete.id);
-            toast.success("Template deleted", {
-              description: pendingDelete.name,
-            });
+            toast.success("Template deleted", { description: pendingDelete.name });
           } catch (err) {
             toast.error("Couldn't delete the template", {
               description: err?.message || "Please try again.",

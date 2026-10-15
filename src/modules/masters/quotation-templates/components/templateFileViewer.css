@@ -1,0 +1,62 @@
+/* Word document rendered as a white page in the template viewer. */
+.doc-preview {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 3rem 3.5rem;
+  background: #fff;
+  color: #1f2937;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 13.5px;
+  line-height: 1.6;
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.08),
+    0 8px 24px rgb(15 23 42 / 0.08);
+  overflow-wrap: anywhere;
+}
+@media (max-width: 640px) {
+  .doc-preview {
+    padding: 1.5rem 1.25rem;
+  }
+}
+.doc-preview > * + * {
+  margin-top: 0.5rem;
+}
+.doc-preview h1,
+.doc-preview h2,
+.doc-preview h3 {
+  margin-top: 1.4rem;
+  color: #c8102e;
+  font-weight: 600;
+}
+.doc-preview h1 {
+  font-size: 1.25rem;
+}
+.doc-preview h2 {
+  font-size: 1.05rem;
+}
+.doc-preview ul,
+.doc-preview ol {
+  padding-left: 1.4rem;
+}
+.doc-preview ul {
+  list-style: disc;
+}
+.doc-preview ol {
+  list-style: decimal;
+}
+.doc-preview table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.doc-preview td,
+.doc-preview th {
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #cbd5e1;
+  vertical-align: top;
+}
+.doc-preview img {
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+  vertical-align: top;
+}

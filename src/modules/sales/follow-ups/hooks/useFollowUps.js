@@ -27,9 +27,7 @@ export function useFollowUps(quotationId) {
         setPage(data?.number ?? target);
       } catch (err) {
         setItems([]);
-        setError(
-          err instanceof ApiError ? err.message : "Could not load follow-ups.",
-        );
+        setError(err instanceof ApiError ? err.message : "Could not load follow-ups.");
       } finally {
         setLoading(false);
       }

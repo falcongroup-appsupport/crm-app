@@ -131,10 +131,7 @@ export function AddToExistingEnquiry({ initialSearch = {}, onSwitchToNew }) {
 
   return (
     <div className="space-y-6 pb-16">
-      <ExistingEnquirySummary
-        enquiry={selected}
-        onChange={() => setSelected(null)}
-      />
+      <ExistingEnquirySummary enquiry={selected} onChange={() => setSelected(null)} />
 
       {errorCount > 0 && (
         <div className="flex items-start gap-2 rounded-lg bg-signal-50 px-4 py-3 text-sm text-signal-700 ring-1 ring-inset ring-signal-200 dark:bg-signal-500/10 dark:text-signal-400 dark:ring-signal-500/30">
@@ -162,9 +159,7 @@ export function AddToExistingEnquiry({ initialSearch = {}, onSwitchToNew }) {
               onChange={(p) =>
                 setProjects((list) => list.map((x, j) => (j === i ? p : x)))
               }
-              onRemove={() =>
-                setProjects((list) => list.filter((_, j) => j !== i))
-              }
+              onRemove={() => setProjects((list) => list.filter((_, j) => j !== i))}
               removable={projects.length > 1}
               errors={errors}
             />
@@ -202,8 +197,8 @@ export function AddToExistingEnquiry({ initialSearch = {}, onSwitchToNew }) {
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ink-100 pt-5 dark:border-ink-800">
         <p className="text-sm text-ink-500 dark:text-ink-400">
-          Adds {projects.length} project{projects.length > 1 ? "s" : ""} ·{" "}
-          {activityCount} activit{activityCount === 1 ? "y" : "ies"} to{" "}
+          Adds {projects.length} project{projects.length > 1 ? "s" : ""} · {activityCount}{" "}
+          activit{activityCount === 1 ? "y" : "ies"} to{" "}
           <span className="font-mono font-medium text-ink-800 dark:text-ink-100">
             {selected.enquiryNo}
           </span>
