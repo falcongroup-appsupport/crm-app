@@ -5,6 +5,7 @@ import { Button } from "../../../../shared/components/ui/Button";
 import { FieldLabel, Input } from "../../../../shared/components/forms";
 import { ApiError } from "../../../../shared/api/axiosInstance";
 import { useToast } from "../../../../shared/components/feedback/toast/useToast";
+import { templateFileName } from "../api/quotationTemplate.api";
 
 /** Create (template = null) or edit a quotation template. On edit the file is optional. */
 export function TemplateFormModal({ open, onClose, template, onSubmit }) {
@@ -73,7 +74,7 @@ export function TemplateFormModal({ open, onClose, template, onSubmit }) {
           />
         </div>
         <div>
-          <FieldLabel required={!isEdit}>File (PDF, DOCX…)</FieldLabel>
+          <FieldLabel required={!isEdit}>Word file (.docx)</FieldLabel>
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
@@ -85,12 +86,23 @@ export function TemplateFormModal({ open, onClose, template, onSubmit }) {
           <input
             ref={inputRef}
             type="file"
+            accept=".docx,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf"
             className="hidden"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            onChange={(e) => {
+              setFile(e.target.files?.[0] ?? null);
+              e.target.value = "";
+            }}
           />
-          {isEdit && !file && (template?.fileName || template?.originalFileName) && (
+          {file && !/\.docx$/i.test(file.name) ? (
+            <p className="mt-1.5 text-xs text-amber-600 dark:text-amber-400">
+              Only Word (.docx) templates can be loaded into a quotation. This file will
+              be kept for reference only.
+            </p>
+          ) : (
             <p className="mt-1.5 text-xs text-ink-400">
-              Current file: {template.fileName ?? template.originalFileName}
+              {isEdit && !file && template?.filePath
+                ? `Current file: ${templateFileName(template)}`
+                : "Use the Word version of the quotation — its four template sections are loaded into the editor."}
             </p>
           )}
         </div>

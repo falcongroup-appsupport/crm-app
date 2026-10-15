@@ -1,0 +1,205 @@
+/*
+ * Template editor + read-only view. The page is always white (like Word / the PDF),
+ * also in dark mode, so what you see matches what prints.
+ */
+
+/* ---- page shell (editor) ---- */
+.rte-page {
+  max-width: 820px; /* ≈ A4 at screen size */
+  min-height: 100%;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 2px;
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.08),
+    0 8px 24px rgb(15 23 42 / 0.08);
+}
+.rte-page .rte-content {
+  min-height: 60vh;
+  padding: 3rem 3.5rem 4rem;
+}
+@media (max-width: 640px) {
+  .rte-page .rte-content {
+    padding: 1.5rem 1.25rem 2.5rem;
+  }
+}
+
+/* ---- content (shared by editor and read-only view) ---- */
+.rte-content {
+  color: #1f2937;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 13.5px;
+  line-height: 1.6;
+  outline: none;
+  overflow-wrap: anywhere;
+}
+.rte-content > * + * {
+  margin-top: 0.55rem;
+}
+.rte-content p {
+  margin: 0;
+}
+.rte-content p + p {
+  margin-top: 0.45rem;
+}
+
+/* section heading → "SCOPE OF SERVICES: -" exactly as the PDF prints it */
+.rte-content h3 {
+  margin-top: 1.6rem;
+  color: #c8102e;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.rte-content h3:first-child {
+  margin-top: 0;
+}
+.rte-content h3:not(:empty)::after {
+  content: ": -";
+}
+/* sub-heading → grey band */
+.rte-content h4 {
+  margin-top: 0.9rem;
+  padding: 0.25rem 0.5rem;
+  background: #f1f5f9;
+  color: #111827;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.rte-content ul,
+.rte-content ol {
+  padding-left: 1.4rem;
+}
+.rte-content ul {
+  list-style: disc;
+}
+.rte-content ol {
+  list-style: decimal;
+}
+.rte-content ul li::marker {
+  color: #c8102e;
+}
+.rte-content li + li {
+  margin-top: 0.2rem;
+}
+.rte-content li > p {
+  margin: 0;
+}
+
+/* ---- tables ---- */
+.rte-content table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  overflow: hidden;
+}
+.rte-content th,
+.rte-content td {
+  position: relative;
+  min-width: 3rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #cbd5e1;
+  vertical-align: top;
+  text-align: left;
+}
+.rte-content th {
+  background: #111827;
+  color: #fff;
+  font-weight: 700;
+}
+.rte-content .selectedCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgb(200 16 46 / 0.12);
+  pointer-events: none;
+}
+
+/* ---- pictures ---- */
+.rte-content img {
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+  vertical-align: top;
+}
+/* editor picture (node view): width % lives on the wrapper */
+.rte-img {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  margin: 0.15rem 0.2rem;
+  line-height: 0;
+  vertical-align: top;
+}
+.rte-img img {
+  width: 100%;
+  margin: 0;
+}
+.rte-img-badge,
+.rte-img-handle {
+  display: none;
+}
+.rte-img.ProseMirror-selectednode,
+.rte-img.is-resizing {
+  outline: 2px solid #c8102e;
+  outline-offset: 1px;
+}
+.rte-img.ProseMirror-selectednode .rte-img-handle,
+.rte-img.is-resizing .rte-img-handle {
+  position: absolute;
+  top: 50%;
+  display: block;
+  width: 10px;
+  height: 34px;
+  margin-top: -17px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #c8102e;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+  cursor: ew-resize;
+  touch-action: none;
+}
+.rte-img-handle-l {
+  left: -6px;
+}
+.rte-img-handle-r {
+  right: -6px;
+}
+.rte-img.ProseMirror-selectednode .rte-img-badge,
+.rte-img.is-resizing .rte-img-badge {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  display: block;
+  transform: translateX(-50%);
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgb(17 24 39 / 0.8);
+  color: #fff;
+  font:
+    600 11px/1.4 system-ui,
+    sans-serif;
+  pointer-events: none;
+}
+
+/* ---- placeholder + caret niceties ---- */
+.rte-content p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: #94a3b8;
+  pointer-events: none;
+}
+.rte-content .ProseMirror-gapcursor::after {
+  border-top-color: #c8102e;
+}
+.rte-content ::selection {
+  background: rgb(200 16 46 / 0.18);
+}
+
+/* ---- read-only view ---- */
+.rte-readonly img {
+  margin: 0.15rem 0.2rem;
+}

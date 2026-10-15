@@ -2,6 +2,7 @@ import {
   CURRENCIES,
   DEFAULT_DURATION_DESCRIPTIONS,
   DEFAULT_VAT_PERCENTAGE,
+  TEMPLATE_MAX_CHARS,
 } from "../constants/quotationConstants";
 import { phoneError, todayLocal } from "../../../enquiries/schemas/enquiry.schema";
 
@@ -116,6 +117,7 @@ export function emptyQuotation(enquiry) {
     detailedPaymentTerms: "",
     internalRemarks: "",
     termsAndConditions: "",
+    templateContents: "", // rich-text (HTML) template sections (scope, general considerations, deliverables, equipment)
   };
 }
 
@@ -162,6 +164,7 @@ export function normalizeQuotation(q) {
     detailedPaymentTerms: str(q?.detailedPaymentTerms),
     internalRemarks: str(q?.internalRemarks),
     termsAndConditions: str(q?.termsAndConditions),
+    templateContents: str(q?.templateContents),
   };
 }
 
@@ -196,7 +199,9 @@ export function buildQuotationPayload(form, enquiryId) {
 
   return {
     enquiryId: Number(enquiryId),
-    quotationReference: form.quotationReference,
+    // the quotation number is the reference — the field is no longer entered by hand;
+    // an existing value is sent back unchanged so old records keep it
+    quotationReference: form.quotationReference || form.quotationNo || null,
     quotationDate: form.quotationDate,
     quotationValidity: num(form.quotationValidity),
     currency: form.currency,
@@ -217,6 +222,7 @@ export function buildQuotationPayload(form, enquiryId) {
     detailedPaymentTerms: form.detailedPaymentTerms,
     internalRemarks: form.internalRemarks,
     termsAndConditions: form.termsAndConditions,
+    templateContents: form.templateContents,
   };
 }
 
@@ -246,6 +252,17 @@ export function daysLeft(dateStr) {
 
 // ---- validation -------------------------------------------------------------
 
+const ADDRESS_LABELS = [
+  ["emirate", "Emirate"],
+  ["city", "City"],
+  ["officeNumber", "Office number"],
+  ["buildingCommunityName", "Building / community"],
+  ["streetAddress", "Street address"],
+  ["area", "Area"],
+  ["poBox", "PO box"],
+  ["additionalLandmarks", "Additional landmarks"],
+];
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const blank = (v) => text(v).trim() === "";
 const isNum = (v) => !blank(v) && Number.isFinite(Number(v));
@@ -253,14 +270,11 @@ const tooLong = (v, max) => text(v).trim().length > max;
 
 /**
  * Validates the quotation form (POST and PUT). Returns { [key]: message };
- * keys: quotationReference, emailId, items.0.rate, durations.1.duration, discount…
+ * keys: quotationDate, customerAddress.city, emailId, items.0.rate, durations.1.duration, discount…
  */
 export function validateQuotation(form) {
   const e = {};
 
-  if (blank(form.quotationReference)) e.quotationReference = "Reference is required";
-  else if (tooLong(form.quotationReference, 50))
-    e.quotationReference = "Keep it under 50 characters";
   if (blank(form.quotationDate)) e.quotationDate = "Quotation date is required";
   else if (Number.isNaN(Date.parse(form.quotationDate)))
     e.quotationDate = "Enter a valid date";
@@ -283,6 +297,13 @@ export function validateQuotation(form) {
   if (phone) e.contactNumber = phone;
   if (blank(form.projectName)) e.projectName = "Project name is required";
   else if (tooLong(form.projectName, 255)) e.projectName = "Keep it under 255 characters";
+
+  const addr = form.customerAddress ?? {};
+  for (const [key, label] of ADDRESS_LABELS) {
+    if (blank(addr[key])) e[`customerAddress.${key}`] = `${label} is required`;
+    else if (tooLong(addr[key], 255))
+      e[`customerAddress.${key}`] = "Keep it under 255 characters";
+  }
 
   const items = form.items ?? [];
   if (!items.length) e.items = "Add at least one item";
@@ -322,6 +343,8 @@ export function validateQuotation(form) {
     e.detailedPaymentTerms = "Keep it under 2000 characters";
   if (tooLong(form.termsAndConditions, 4000))
     e.termsAndConditions = "Keep it under 4000 characters";
+  if (tooLong(form.templateContents, TEMPLATE_MAX_CHARS))
+    e.templateContents = "The template content is too large — use smaller pictures";
   if (tooLong(form.internalRemarks, 2000))
     e.internalRemarks = "Keep it under 2000 characters";
   return e;

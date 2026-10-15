@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { CheckCircle2, ChevronLeft, FilePlus2, Mail, Pencil, Phone } from "lucide-react";
+import {
+  CheckCircle2,
+  ChevronLeft,
+  Download,
+  FilePlus2,
+  Mail,
+  Pencil,
+  Phone,
+} from "lucide-react";
 import { Button } from "../../../../shared/components/ui/Button";
 import { ReadField } from "../../../../shared/components/ui/ReadField";
 import { ApiError } from "../../../../shared/api/axiosInstance";
@@ -13,6 +21,8 @@ import { FollowUpHistory } from "../../follow-ups/components/FollowUpHistory";
 import { usePaymentTerms, termLabel } from "../hooks/usePaymentTerms";
 import { daysLeft, validUntil } from "../schemas/quotation.schema";
 import { QuotationStatusBadge } from "./QuotationStatusBadge";
+import { downloadQuotationPdf } from "../pdf/downloadQuotationPdf";
+import { TemplateContentView } from "./TemplateContentView";
 
 const CARD =
   "rounded-xl bg-white p-5 ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800";
@@ -50,6 +60,7 @@ export function QuotationView({ quotation }) {
   });
   const { terms } = usePaymentTerms();
   const [marking, setMarking] = useState(false);
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   const currency = quotation.currency || "AED";
   const address = quotation.customerAddress ?? {};
@@ -63,6 +74,16 @@ export function QuotationView({ quotation }) {
       : quotation.paymentTermId
         ? `Term #${quotation.paymentTermId}`
         : "");
+  const downloadPdf = async () => {
+    setPdfBusy(true);
+    try {
+      await downloadQuotationPdf(quotation);
+    } catch {
+      toast.error("Couldn't generate the PDF. Please try again.");
+    } finally {
+      setPdfBusy(false);
+    }
+  };
   const lead =
     quotation.enquiryLead && quotation.enquiryLead !== "NO_LEAD"
       ? quotation.enquiryLead
@@ -119,13 +140,13 @@ export function QuotationView({ quotation }) {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="font-mono text-lg font-semibold text-ink-950 dark:text-white">
-                {quotation.quotationNo || quotation.quotationReference}
+                {quotation.quotationNo}
               </h1>
               <QuotationStatusBadge status={quotation.status} />
               {enquiry && <StatusBadge status={enquiry.currentStatus} />}
             </div>
             <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">
-              {quotation.customerName} · Ref {quotation.quotationReference} ·{" "}
+              {quotation.customerName} ·{" "}
               <Link
                 to={`/enquiries/${quotation.enquiryId}`}
                 className="font-mono hover:text-signal-600"
@@ -142,6 +163,10 @@ export function QuotationView({ quotation }) {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Button variant="secondary" size="sm" onClick={downloadPdf} disabled={pdfBusy}>
+            <Download className="h-4 w-4" />
+            {pdfBusy ? "Generating…" : "Download PDF"}
+          </Button>
           <Button
             variant="secondary"
             size="sm"
@@ -192,7 +217,6 @@ export function QuotationView({ quotation }) {
         <p className={TITLE}>Quotation details</p>
         <div className={GRID}>
           <ReadField label="Quotation number" value={quotation.quotationNo} />
-          <ReadField label="Reference" value={quotation.quotationReference} />
           <ReadField label="Status">
             <QuotationStatusBadge status={quotation.status} />
           </ReadField>
@@ -381,6 +405,22 @@ export function QuotationView({ quotation }) {
             </tbody>
           </table>
         )}
+      </section>
+
+      {/* template content (scope, considerations, deliverables, equipment) */}
+      <section className={CARD}>
+        <div className="mb-4 flex items-baseline justify-between gap-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink-400">
+            Template content
+          </p>
+          <Link
+            to={`/quotations/${quotation.id}/edit#template`}
+            className="text-xs font-medium text-signal-600 hover:text-signal-700 dark:text-signal-400"
+          >
+            Edit content
+          </Link>
+        </div>
+        <TemplateContentView html={quotation.templateContents} />
       </section>
 
       {/* payment + notes */}

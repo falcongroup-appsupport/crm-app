@@ -73,9 +73,6 @@ export function QuotationTable({ quotations, mode = "quotation" }) {
                   <p className="whitespace-nowrap font-mono text-xs font-semibold text-ink-900 dark:text-ink-50">
                     {q.quotationNo ?? `#${q.id}`}
                   </p>
-                  <p className="truncate text-xs text-ink-400">
-                    Ref {q.quotationReference}
-                  </p>
                 </td>
                 <td className="px-4 py-3.5">
                   <QuotationStatusBadge status={q.status} />

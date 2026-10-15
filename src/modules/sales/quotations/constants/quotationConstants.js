@@ -34,3 +34,21 @@ export const quotationStatusLabel = (status) =>
         .replace(/_/g, " ")
         .replace(/\b\w/g, (c) => c.toUpperCase())
     : "Not set";
+
+/** The four template sections every quotation carries (all other parts come from quotation data). */
+export const TEMPLATE_SECTIONS = [
+  "Scope of Services",
+  "General Considerations",
+  "Reporting & Deliverables",
+  "Equipment and Personnel",
+];
+
+const esc = (t) => t.replace(/&/g, "&amp;");
+
+/** Empty outline with the four section headings, each with one empty bullet. */
+export const STANDARD_OUTLINE_HTML = TEMPLATE_SECTIONS.map(
+  (t) => `<h3>${esc(t)}</h3><ul><li><p></p></li></ul>`,
+).join("");
+
+/** Size limit for the saved template HTML (pictures included). */
+export const TEMPLATE_MAX_CHARS = 2_000_000;

@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft, Save } from "lucide-react";
 import { Button } from "../../../../shared/components/ui/Button";
 import {
@@ -32,6 +32,11 @@ import { QuotationItemsTable } from "./QuotationItemsTable";
 import { QuotationDurationTable } from "./QuotationDurationTable";
 import { QuotationStatusBadge } from "./QuotationStatusBadge";
 
+// the editor (TipTap) and PDF preview load only when this form opens
+const ProposalContentSection = lazy(() =>
+  import("./ProposalContentSection").then((m) => ({ default: m.ProposalContentSection })),
+);
+
 const CARD =
   "rounded-xl bg-white p-5 ring-1 ring-ink-100 dark:bg-ink-900 dark:ring-ink-800";
 const TITLE = "mb-4 text-sm font-semibold text-ink-900 dark:text-ink-50";
@@ -41,8 +46,20 @@ const TITLE = "mb-4 text-sm font-semibold text-ink-900 dark:text-ink-50";
  *         customer, contact, project, emirate and items).
  * edit:   pass `quotation` (GET /api/quotation/{id}).
  */
+// every address line is required (emirate is the select above the list)
+const ADDRESS_FIELDS = [
+  ["city", "City", "Dubai"],
+  ["officeNumber", "Office number", "Office 1204"],
+  ["buildingCommunityName", "Building / Community", "Business Bay Tower"],
+  ["streetAddress", "Street address", "Marasi Drive"],
+  ["area", "Area", "Business Bay"],
+  ["poBox", "PO box", "12345"],
+  ["additionalLandmarks", "Additional landmarks", "Near Dubai Canal"],
+];
+
 export function QuotationForm({ mode, enquiry, quotation }) {
   const navigate = useNavigate();
+  const { hash } = useLocation();
   const toast = useToast();
   const { activities } = useActivities();
   const { terms } = usePaymentTerms();
@@ -65,9 +82,31 @@ export function QuotationForm({ mode, enquiry, quotation }) {
   const setAddress = (patch) =>
     setForm((f) => ({ ...f, customerAddress: { ...f.customerAddress, ...patch } }));
 
+  // "Edit content" on the view page links to #template — jump there once the editor loads
+  useEffect(() => {
+    if (hash !== "#template") return;
+    const t = setTimeout(
+      () => document.getElementById("template")?.scrollIntoView({ behavior: "smooth" }),
+      400,
+    );
+    return () => clearTimeout(t);
+  }, [hash]);
+
   const totals = computeTotals(form.items, form.discount);
   const totalDays = computeTotalDays(form.durations);
   const expiry = validUntil(form.quotationDate, form.quotationValidity);
+
+  // what the PDF preview is rendered from (the saved quotation + unsaved form edits)
+  const previewQuotation = useMemo(
+    () => ({
+      ...(quotation ?? {}),
+      ...buildQuotationPayload(form, enquiryId),
+      id: quotation?.id,
+      quotationNo: quotation?.quotationNo || "Draft — number assigned on save",
+      enquiryLead: quotation?.enquiryLead ?? enquiry?.projectLead,
+    }),
+    [form, enquiryId, quotation, enquiry],
+  );
 
   const pickTerm = (value) => {
     const term = terms.find((t) => String(t.id) === value);
@@ -106,8 +145,7 @@ export function QuotationForm({ mode, enquiry, quotation }) {
           : await quotationApi.create(body);
       const id = saved?.id ?? quotation?.id;
       toast.success(mode === "edit" ? "Quotation updated" : "Quotation created", {
-        description:
-          saved?.quotationNo ?? quotation?.quotationNo ?? form.quotationReference,
+        description: saved?.quotationNo ?? quotation?.quotationNo,
       });
       navigate(id ? `/quotations/${id}` : "/quotations");
     } catch (err) {
@@ -173,16 +211,6 @@ export function QuotationForm({ mode, enquiry, quotation }) {
         <section className={CARD}>
           <p className={TITLE}>Quotation details</p>
           <FormRow>
-            <div>
-              <FieldLabel required>Quotation reference</FieldLabel>
-              <Input
-                value={form.quotationReference}
-                aria-invalid={invalid("quotationReference")}
-                onChange={(e) => set({ quotationReference: e.target.value })}
-                placeholder="QT-REF-001"
-              />
-              <FieldError>{errors.quotationReference}</FieldError>
-            </div>
             <div>
               <FieldLabel required>Quotation date</FieldLabel>
               <Input
@@ -294,9 +322,10 @@ export function QuotationForm({ mode, enquiry, quotation }) {
           <p className={TITLE}>Customer address</p>
           <FormRow>
             <div>
-              <FieldLabel>Emirate</FieldLabel>
+              <FieldLabel required>Emirate</FieldLabel>
               <Select
                 value={form.customerAddress.emirate}
+                aria-invalid={invalid("customerAddress.emirate")}
                 onChange={(e) => setAddress({ emirate: e.target.value })}
               >
                 <option value="">Select emirate…</option>
@@ -308,56 +337,20 @@ export function QuotationForm({ mode, enquiry, quotation }) {
                   <option key={em}>{em}</option>
                 ))}
               </Select>
+              <FieldError>{errors["customerAddress.emirate"]}</FieldError>
             </div>
-            <div>
-              <FieldLabel>City</FieldLabel>
-              <Input
-                value={form.customerAddress.city}
-                onChange={(e) => setAddress({ city: e.target.value })}
-              />
-            </div>
-            <div>
-              <FieldLabel>Office number</FieldLabel>
-              <Input
-                value={form.customerAddress.officeNumber}
-                onChange={(e) => setAddress({ officeNumber: e.target.value })}
-              />
-            </div>
-            <div>
-              <FieldLabel>Building / Community</FieldLabel>
-              <Input
-                value={form.customerAddress.buildingCommunityName}
-                onChange={(e) => setAddress({ buildingCommunityName: e.target.value })}
-              />
-            </div>
-            <div>
-              <FieldLabel>Street address</FieldLabel>
-              <Input
-                value={form.customerAddress.streetAddress}
-                onChange={(e) => setAddress({ streetAddress: e.target.value })}
-              />
-            </div>
-            <div>
-              <FieldLabel>Area</FieldLabel>
-              <Input
-                value={form.customerAddress.area}
-                onChange={(e) => setAddress({ area: e.target.value })}
-              />
-            </div>
-            <div>
-              <FieldLabel>PO box</FieldLabel>
-              <Input
-                value={form.customerAddress.poBox}
-                onChange={(e) => setAddress({ poBox: e.target.value })}
-              />
-            </div>
-            <div>
-              <FieldLabel>Additional landmarks</FieldLabel>
-              <Input
-                value={form.customerAddress.additionalLandmarks}
-                onChange={(e) => setAddress({ additionalLandmarks: e.target.value })}
-              />
-            </div>
+            {ADDRESS_FIELDS.map(([key, label, placeholder]) => (
+              <div key={key}>
+                <FieldLabel required>{label}</FieldLabel>
+                <Input
+                  value={form.customerAddress[key]}
+                  aria-invalid={invalid(`customerAddress.${key}`)}
+                  onChange={(e) => setAddress({ [key]: e.target.value })}
+                  placeholder={placeholder}
+                />
+                <FieldError>{errors[`customerAddress.${key}`]}</FieldError>
+              </div>
+            ))}
           </FormRow>
         </section>
 
@@ -427,6 +420,22 @@ export function QuotationForm({ mode, enquiry, quotation }) {
             onChange={(durations) => set({ durations })}
             errors={errors}
           />
+        </section>
+
+        <section id="template" className={`${CARD} scroll-mt-20`}>
+          <p className={TITLE}>Template content</p>
+          <Suspense
+            fallback={
+              <div className="h-72 animate-pulse rounded-lg bg-ink-50 dark:bg-ink-800" />
+            }
+          >
+            <ProposalContentSection
+              value={form.templateContents}
+              onChange={(templateContents) => set({ templateContents })}
+              previewQuotation={previewQuotation}
+              error={errors.templateContents}
+            />
+          </Suspense>
         </section>
 
         <section className={CARD}>

@@ -98,7 +98,7 @@ function ToastItem({ toast, onDismiss }) {
             {toast.title}
           </p>
           {toast.description && (
-            <p className="mt-0.5 break-words text-sm leading-snug text-ink-500 dark:text-ink-400">
+            <p className="mt-0.5 wrap-break-word text-sm leading-snug text-ink-500 dark:text-ink-400">
               {toast.description}
             </p>
           )}
@@ -128,7 +128,7 @@ function ToastItem({ toast, onDismiss }) {
         <span
           aria-hidden="true"
           className={cn(
-            "absolute bottom-0 left-0 h-[3px] w-full origin-left opacity-70",
+            "absolute bottom-0 left-0 h-0.75 w-full origin-left opacity-70",
             bar,
           )}
           style={{
@@ -194,7 +194,7 @@ export function ToastProvider({ children }) {
         <ol
           aria-live="polite"
           aria-label="Notifications"
-          className="pointer-events-none fixed inset-x-3 bottom-3 z-[100] flex flex-col gap-2.5 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[380px]"
+          className="pointer-events-none fixed inset-x-3 bottom-3 z-100 flex flex-col gap-2.5 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-95"
         >
           <AnimatePresence initial={false}>
             {toasts.map((t) => (
